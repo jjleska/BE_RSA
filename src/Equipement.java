@@ -1,3 +1,5 @@
+import java.security.PublicKey;
+
 public class Equipement {
 	
 	private PaireClesRSA maCle; // La paire de cle de l’equipement.
@@ -23,14 +25,17 @@ public class Equipement {
 		// de l’équipement.
 	}
 	public String monNom (){
+		return null;
 		// Recuperation de l’identite de l’équipement.
 
 	}
 	public PublicKey maClePub() {
+		return null;
 		// Recuperation de la clé publique de l’équipement.
 	}
 		
 	public Certificat monCertif() {
+		return null;
 		// Recuperation du certificat auto-signé.
 	}
 }
