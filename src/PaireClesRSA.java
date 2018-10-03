@@ -13,8 +13,9 @@ public class PaireClesRSA {
 	try {
 		SecureRandom rand = new SecureRandom();
 		KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA");
+		
 		kpg.initialize(2048,rand);
-		KeyPair key = kpg.generateKeyPair();
+		key = kpg.generateKeyPair();
 	} catch (NoSuchAlgorithmException e) {
 		// TODO Auto-generated catch block
 		e.printStackTrace();
