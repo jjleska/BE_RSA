@@ -24,11 +24,13 @@ public class Equipement {
 		// Affichage de l’ensemble des informations
 		// de l’équipement.
 	}
+	
 	public String monNom (){
-		return null;
+		return monNom;
 		// Recuperation de l’identite de l’équipement.
 
 	}
+	
 	public PublicKey maClePub() {
 		return null;
 		// Recuperation de la clé publique de l’équipement.

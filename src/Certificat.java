@@ -11,8 +11,8 @@ public class Certificat {
 		// Constructeur d’un certificat auto-signé avec
 		// CN = nom, la clé publique contenu dans PaireClesRSA,
 		// la durée de validité.
-		// Fesse.
 	}
+	
 	public boolean verifCertif (PublicKey pubkey) {
 		return false;
 		// Vérification de la signature du certificat à l’aide
