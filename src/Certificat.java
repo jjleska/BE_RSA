@@ -42,8 +42,15 @@ public class Certificat {
 	}
 	
 	public boolean verifCertif (PublicKey pubkey) {
-		return false;
 		// Vérification de la signature du certificat à l’aide
 		// de la clé publique passée en argument.
+		try {
+			x509.verify(pubkey);
+		}
+		catch(Exception e) {
+			return false;
+		}
+		return true;
+
 	}
 }
