@@ -166,7 +166,7 @@ public class Equipement {
 
 		}
 		
-		Equipement eqb;
+		/*Equipement eqb;
 		try {
 			eqb = new Equipement("blob", 4400);
 		} catch (Exception e) {
@@ -180,7 +180,7 @@ public class Equipement {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			return;
-		}
+		}*/
 		
 		
 		
