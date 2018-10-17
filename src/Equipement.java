@@ -32,6 +32,8 @@ public class Equipement {
 	private OutputStream NativeOut = null;
 	private ObjectOutputStream oos = null;
 	
+	private static Scanner user_input=null;
+	
 	
 	
 	Equipement (String nom, int port) throws Exception {
@@ -43,12 +45,12 @@ public class Equipement {
 		
 	}
 	
-	public static void main(String[] args)
+	public static void main(String[] args) throws CertificateException, IOException
 	{
 		Security.addProvider(new BouncyCastleProvider());
 		
 		
-		Scanner user_input = new Scanner(System.in);
+		user_input = new Scanner(System.in);
 		System.out.println("Nom de l'equipement ?");
 		String eq_name = user_input.next();
 		
@@ -162,64 +164,120 @@ public class Equipement {
 	
 	//Serveur
 	public void InitInsertionServer(){
-		// Reception de la cle client
+		// Reception de la cle publique client et son nom
 		PublicKey clientPKey = null;
+		String nomClient=null;
 			try {
 				clientPKey = (PublicKey) this.ois.readObject();
-				System.out.println(clientPKey);
+				nomClient = (String) this.ois.readObject();
 				} catch (Exception e) {
 				// Gestion des exceptions
-					System.out.println("oupsi, reception failed :(");
+					System.out.println("oupsi, clé client et nom pas reçus");
 				}
-			if(clientPKey != null){
+			//Demande utilisateur pour l'ajout du serveur
+			System.out.println("Ajouter le periphérique "+nomClient+"? (y/n)");
+			String repajout = user_input.next();
+
+			//Si on a récupéré le nom et l'utilisateur a accepté
+			if((clientPKey != null) && (repajout.equals("y"))){
 				//Creation du certificat
 				try {
-						Certificat serv_user = new Certificat(this.monNom, "bob", clientPKey, this.maCle.Privee(), 60);
-						System.out.println(serv_user);
+						Certificat serv_user = new Certificat(this.monNom, nomClient, clientPKey, this.maCle.Privee(), 60);
+						
+						//Envoi certificat client
 						this.oos.writeObject(serv_user);
 						this.oos.reset();
-						} catch (Exception e) {
+						
+						//Envoi cle publique serveur et nom
+						this.oos.writeObject(this.maCle.Publique());
+						this.oos.reset();
+						this.oos.writeObject(this.monNom);
+						this.oos.reset();
+						
+						//Reception certificat client
+						Certificat certifClient = null;
+						try {
+							certifClient=  (Certificat) this.ois.readObject();
+							} catch (Exception e) {
+							// Gestion des exceptions
+								System.out.println("oupsi, le client ne m'a pas certifié");
+							}
+						//Verification certificat client
+						boolean okcertifclient= certifClient.verifCertif(clientPKey);
+						if (okcertifclient) {
+							System.out.println("Connexion validée");
+						}
+						else {
+							System.out.println("Certificat invalide");
+						}
+
+						
+				} catch (Exception e) {
 						// Gestion des exceptions
 							System.out.println("oupsi, user certificate was not sent ");
-						}}
+						}
+				
+				}
 				else{
 					try {
 						this.oos.writeObject("NOPE");
 						this.oos.flush();
 						} catch (Exception e) {
 						// Gestion des exceptions
-							System.out.println("Wrong key received");
+							System.out.println("Refus utilisateur ou mauvaise réception clé");
 						}
 				}
 			}
 	
-	public void initInsertionClient () {
-		// Demande au serveur à s'inserer en envoyant mon certificat
+	public void initInsertionClient () throws CertificateException, IOException {
+		// Demande au serveur à s'inserer en envoyant sa clé et son nom
 			try {
 				
 			this.oos.writeObject(this.monCert.pubkey);
 			this.oos.reset();
+			this.oos.writeObject(this.monNom);
+			this.oos.reset();
 			} catch (Exception e) {
 			// Gestion des exceptions
-				System.out.println("oupsi, j'ai pas envoyé ma clé");
+				System.out.println("oupsi, j'ai pas envoyé ma clé et mon nom");
 			}
 		// Reception du certif du serveur
 			Certificat certifServeur = null;
 		try {
 			certifServeur=  (Certificat) this.ois.readObject();
-			System.out.println(certifServeur);
 			} catch (Exception e) {
 			// Gestion des exceptions
 				System.out.println("oupsi, j'ai pas le certif du serveur");
 			}
 
-		//Verification certif serveur //START HERE
-		boolean okcertifserveur= certifServeur.verifCertif(certifServeur.pubkey);
+		//Reception cle serveur et nom
+		PublicKey clepubserveur = null;
+		String nomserveur=null;
+		try {
+			clepubserveur=  (PublicKey) this.ois.readObject();
+			nomserveur=  (String) this.ois.readObject();
+
+			} catch (Exception e) {
+			// Gestion des exceptions
+				System.out.println("oupsi, j'ai pas la clé du serveur");
+			}
+
+		
+		boolean okcertifserveur= certifServeur.verifCertif(clepubserveur);
 		if (okcertifserveur) {
-			System.out.println("Certificat serveur validé");
 			//Demande utilisateur pour l'ajout du serveur
 			System.out.println("Ajouter le serveur ?(y/n)");
-			//String eq_name = user_input.next();
+			String repajout = user_input.next();
+			
+			//Si l'utilisateur accepte d'ajouter le periphérique on certifie le serveur
+			if (repajout.equals("y")) {
+				Certificat certifserv = new Certificat(this.monNom, nomserveur, clepubserveur, this.maCle.Privee(), 60);
+				
+				//Envoi certificat serveur
+				this.oos.writeObject(certifserv);
+				this.oos.reset();
+			}
+			else {System.out.println("Refus d'ajout du périphérique");}
 			
 		}
 		else {
