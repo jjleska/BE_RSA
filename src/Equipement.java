@@ -55,7 +55,7 @@ public class Equipement {
 
 		Equipement eq;
 		try {
-			eq = new Equipement(eq_name, 4400);
+			eq = new Equipement(eq_name, 5000);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -84,6 +84,7 @@ public class Equipement {
 			// Creation de socket (TCP)
 			try {
 			eq.serverSocket = new ServerSocket(eq.monPort);
+
 			} catch (IOException e) {
 			// Gestion des exceptions
 				System.out.println("Server socket failed");
@@ -101,19 +102,22 @@ public class Equipement {
 				eq.ois = new ObjectInputStream(eq.NativeIn);
 				eq.NativeOut = eq.NewServerSocket.getOutputStream();
 				eq.oos = new ObjectOutputStream(eq.NativeOut);
-				System.out.println("job's done");
+
 				
 
 			} catch (IOException e) {
 			// Gestion des exceptions
+
+				System.out.println("Streams failed");
 			}
 		}
 		else {
 			// Creation de socket (TCP)
 			try {
-				eq.clientSocket = new Socket(eq.ServerName,eq.ServerPort);
+				eq.clientSocket = new Socket("127.0.0.1", 5000);
 			} catch (Exception e) {
 			// Gestion des exceptions
+				System.out.println("Socket creation failed");
 			}
 			// Creation des flux natifs et evolues
 			try {
