@@ -15,10 +15,10 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider;
 public class Equipement {
 	
 	private PaireClesRSA maCle; // La paire de cle de l’equipement.
-	private Certificat monCert; // Le certificat auto-signe.
+	private static Certificat monCert; // Le certificat auto-signe.
 	private String monNom; // Identite de l’equipement.
 	private int monPort; // Le numéro de port d’ecoute.
-	private ListeCertif CA;//La liste CA
+	private static ListeCertif CA;//La liste CA
 	
 	
 	//Socket attributes
@@ -140,7 +140,12 @@ public class Equipement {
 			eq.initInsertionClient();		
 			break;
 			
-		
+		case "i" :
+			System.out.println(monCert);
+			break;
+		case "u":
+			CA.afficheCA();
+			break;
 		}
 	
 
@@ -211,7 +216,6 @@ public class Equipement {
 							System.out.println("Connexion validée");
 							//Ajout de Client dans la CA du serveur
 							this.CA.put(clientPKey, certifClient);
-							this.CA.afficheCA();
 						}
 						else {
 							System.out.println("Certificat invalide");
@@ -279,7 +283,6 @@ public class Equipement {
 			if (repajout.equals("y")) {
 				//Ajout de Serveur dans la CA du client
 				this.CA.put(clepubserveur, certifServeur);
-				this.CA.afficheCA();
 				//Certification du serveur
 				Certificat certifserv = new Certificat(this.monNom, nomserveur, clepubserveur, this.maCle.Privee(), 60);
 				
