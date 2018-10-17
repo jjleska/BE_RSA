@@ -110,7 +110,24 @@ public class Equipement {
 
 				System.out.println("Streams failed");
 			}
+			// Reception d置n String
+			try {
+				String res = (String) eq.ois.readObject();
+				System.out.println(res);
+				} catch (Exception e) {
+				// Gestion des exceptions
+					System.out.println("oupsi, reception failed :(");
+				}
+			// Emission d置n String
+			try {
+			eq.oos.writeObject(eq.monNom());
+			eq.oos.flush();
+			} catch (Exception e) {
+			// Gestion des exceptions
+				System.out.println("oupsi, emission failed :(");
+			}
 		}
+		
 		else {
 			// Creation de socket (TCP)
 			try {
@@ -130,6 +147,23 @@ public class Equipement {
 			// Gestion des exceptions
 				System.out.println("Streams failed");
 			}
+			// Emission d置n String
+			try {
+			eq.oos.writeObject(eq.monNom());
+			eq.oos.flush();
+			} catch (Exception e) {
+			// Gestion des exceptions
+				System.out.println("oupsi, emission failed :(");
+			}
+			// Reception d置n String
+			try {
+				String res = (String) eq.ois.readObject();
+				System.out.println(res);
+				} catch (Exception e) {
+				// Gestion des exceptions
+					System.out.println("oupsi, reception failed :(");
+				}
+
 		}
 		
 		Equipement eqb;
