@@ -186,6 +186,25 @@ public class Equipement {
 		
 	}
 	
+	//Serveur
+	public void InitInsertionServer(){
+		// Reception d’un String
+		Certificat clientCert = null;
+			try {
+				clientCert = (Certificat) this.ois.readObject();
+				System.out.println(clientCert);
+				} catch (Exception e) {
+				// Gestion des exceptions
+					System.out.println("oupsi, reception failed :(");
+				}
+			if(clientCert != null){
+				//clientCert.verifCertif(clientCert.)
+			}
+	}
+	
+	
+	
+	
 	public Certificat pairing(Equipement equb) throws CertificateException{
 		PaireClesRSA pk1,pk2;
 		pk1 = new PaireClesRSA();
