@@ -73,7 +73,7 @@ public class Equipement {
 			e.printStackTrace();
 		}
 		if(eq.monCert.verifCertif(eq.maCle.Publique())){
-			System.out.println(eq.monCert);
+			System.out.println("autocertifié");
 		}else{
 			System.out.println("BITE");
 		}
@@ -266,7 +266,7 @@ public class Equipement {
 		boolean okcertifserveur= certifServeur.verifCertif(clepubserveur);
 		if (okcertifserveur) {
 			//Demande utilisateur pour l'ajout du serveur
-			System.out.println("Ajouter le serveur ?(y/n)");
+			System.out.println("Ajouter le serveur "+nomserveur+"?(y/n)");
 			String repajout = user_input.next();
 			
 			//Si l'utilisateur accepte d'ajouter le periphérique on certifie le serveur
@@ -319,6 +319,7 @@ public class Equipement {
 	public void affichage() {
 		// Affichage de l’ensemble des informations
 		// de l’équipement.
+		System.out.println(this.monCert);
 	}
 	
 	public String monNom (){
@@ -328,7 +329,7 @@ public class Equipement {
 	}
 	
 	public PublicKey maClePub() {
-		return null;
+		return this.maCle.Publique();
 		// Recuperation de la clé publique de l’équipement.
 	}
 		
