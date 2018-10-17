@@ -18,6 +18,8 @@ public class Equipement {
 	private Certificat monCert; // Le certificat auto-signe.
 	private String monNom; // Identite de l’equipement.
 	private int monPort; // Le numéro de port d’ecoute.
+	private ListeCertif CA;//La liste CA
+	
 	
 	//Socket attributes
 	private int ServerPort;
@@ -34,14 +36,14 @@ public class Equipement {
 	
 	private static Scanner user_input=null;
 	
-	
-	
+
 	Equipement (String nom, int port) throws Exception {
 		// Constructeur de l’equipement identifie par nom
 		// et qui « écoutera » sur le port port.
 		
 		this.monNom = nom;
 		this.monPort = port;
+		this.CA=new ListeCertif();
 		
 	}
 	
@@ -72,18 +74,16 @@ public class Equipement {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		if(eq.monCert.verifCertif(eq.maCle.Publique())){
-			System.out.println("autocertifié");
-		}else{
-			System.out.println("BITE");
-		}
+
 		
 		
-		System.out.println("S'agit-il d'un serveur? (y/n)");
-		String serv = user_input.next();
+		System.out.println("Choisir une option :\n i=> Informations sur l'équipement\n r=> Liste des équipements du réseau domestique\n u=> Liste des équipements de UT\n s=>Insertion serveur\n c=>Insertion client\n q=>quitter\n");
+		String option = user_input.next();
 		
-	
-		if (serv.equals("y")){
+		switch(option) {
+		
+		//init serveur
+		case "s" :
 			// Creation de socket (TCP)
 			try {
 			eq.serverSocket = new ServerSocket(eq.monPort);
@@ -115,9 +115,10 @@ public class Equipement {
 			}
 			
 			eq.InitInsertionServer();
-		}
+			break;
 		
-		else {
+		//init client
+		case "c" :
 			// Creation de socket (TCP)
 			try {
 				eq.clientSocket = new Socket("127.0.0.1", 5000);
@@ -136,11 +137,13 @@ public class Equipement {
 			// Gestion des exceptions
 				System.out.println("Streams failed");
 			}
-			eq.initInsertionClient();
+			eq.initInsertionClient();		
+			break;
 			
-			
-
+		
 		}
+	
+
 		
 		/*Equipement eqb;
 		try {
@@ -206,6 +209,9 @@ public class Equipement {
 						boolean okcertifclient= certifClient.verifCertif(clientPKey);
 						if (okcertifclient) {
 							System.out.println("Connexion validée");
+							//Ajout de Client dans la CA du serveur
+							this.CA.put(clientPKey, certifClient);
+							this.CA.afficheCA();
 						}
 						else {
 							System.out.println("Certificat invalide");
@@ -271,6 +277,10 @@ public class Equipement {
 			
 			//Si l'utilisateur accepte d'ajouter le periphérique on certifie le serveur
 			if (repajout.equals("y")) {
+				//Ajout de Serveur dans la CA du client
+				this.CA.put(clepubserveur, certifServeur);
+				this.CA.afficheCA();
+				//Certification du serveur
 				Certificat certifserv = new Certificat(this.monNom, nomserveur, clepubserveur, this.maCle.Privee(), 60);
 				
 				//Envoi certificat serveur
