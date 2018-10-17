@@ -188,7 +188,7 @@ public class Equipement {
 	
 	//Serveur
 	public void InitInsertionServer(){
-		// Reception d’un String
+		// Reception du certificat client
 		Certificat clientCert = null;
 			try {
 				clientCert = (Certificat) this.ois.readObject();
@@ -198,7 +198,24 @@ public class Equipement {
 					System.out.println("oupsi, reception failed :(");
 				}
 			if(clientCert != null){
-				//clientCert.verifCertif(clientCert.)
+				if (clientCert.verifCertif(clientCert.pubkey)){
+					try {
+						this.oos.writeObject(this.monCertif());
+						this.oos.flush();
+						} catch (Exception e) {
+						// Gestion des exceptions
+							System.out.println("oupsi, emission failed :(");
+						}
+				}
+				else{
+					try {
+						this.oos.writeObject("NOPE");
+						this.oos.flush();
+						} catch (Exception e) {
+						// Gestion des exceptions
+							System.out.println("oupsi, emission failed :(");
+						}
+				}
 			}
 	}
 	
@@ -270,7 +287,7 @@ public class Equipement {
 	}
 		
 	public Certificat monCertif() {
-		return null;
+		return monCert;
 		// Recuperation du certificat auto-signé.
 	}
 }
