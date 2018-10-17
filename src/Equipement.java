@@ -78,9 +78,9 @@ public class Equipement {
 		pk1 = new PaireClesRSA();
 		pk2 = new PaireClesRSA();
 		
-		Certificat newc= new Certificat(this.monNom,equb.monNom,pk2, pk1, 60);
+		Certificat newc= new Certificat(this.monNom,equb.monNom,pk1, pk2, 60);
 		
-		if(newc.verifCertif(pk1.Publique()))
+		if(newc.verifCertif(pk2.Publique()))
 		{
 			System.out.println(newc);
 		}else{
