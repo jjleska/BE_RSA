@@ -110,22 +110,8 @@ public class Equipement {
 
 				System.out.println("Streams failed");
 			}
-			// Reception d’un String
-			try {
-				String res = (String) eq.ois.readObject();
-				System.out.println(res);
-				} catch (Exception e) {
-				// Gestion des exceptions
-					System.out.println("oupsi, reception failed :(");
-				}
-			// Emission d’un String
-			try {
-			eq.oos.writeObject(eq.monNom());
-			eq.oos.flush();
-			} catch (Exception e) {
-			// Gestion des exceptions
-				System.out.println("oupsi, emission failed :(");
-			}
+			
+			eq.InitInsertionServer();
 		}
 		
 		else {
@@ -147,22 +133,9 @@ public class Equipement {
 			// Gestion des exceptions
 				System.out.println("Streams failed");
 			}
-			// Emission d’un String
-			try {
-			eq.oos.writeObject(eq.monNom());
-			eq.oos.flush();
-			} catch (Exception e) {
-			// Gestion des exceptions
-				System.out.println("oupsi, emission failed :(");
-			}
-			// Reception d’un String
-			try {
-				String res = (String) eq.ois.readObject();
-				System.out.println(res);
-				} catch (Exception e) {
-				// Gestion des exceptions
-					System.out.println("oupsi, reception failed :(");
-				}
+			eq.initInsertionClient();
+			
+			
 
 		}
 		
@@ -198,6 +171,7 @@ public class Equipement {
 					System.out.println("oupsi, reception failed :(");
 				}
 			if(clientCert != null){
+				
 				if (clientCert.verifCertif(clientCert.pubkey)){
 					try {
 						this.oos.writeObject(this.monCertif());
@@ -219,6 +193,28 @@ public class Equipement {
 			}
 	}
 	
+	public void initInsertionClient () {
+		// Demande au serveur à s'inserer en envoyant mon certificat
+			try {
+
+			this.oos.writeObject(this.monCertif());
+			this.oos.flush();
+			} catch (Exception e) {
+			// Gestion des exceptions
+				System.out.println("oupsi, j'ai pas envoyé mon certif autosigné");
+			}
+		// Reception du certif du serveur
+			Certificat certifServeur = null;
+		try {
+			certifServeur=  (Certificat) this.ois.readObject();
+			System.out.println(certifServeur);
+			} catch (Exception e) {
+			// Gestion des exceptions
+				System.out.println("oupsi, j'ai pas le certif du serveur");
+			}
+		//Verification certif serveur
+		boolean okcertifserveur= certifServeur.verifCertif(certifServeur.pubkey);
+	}
 	
 	
 	
@@ -240,27 +236,7 @@ public class Equipement {
 		
 	}
 	
-	public void initInsertionClient () {
-		// Demande au serveur à s'inserer en envoyant mon certificat
-			try {
-			this.oos.writeObject(this.monCert);
-			this.oos.flush();
-			} catch (Exception e) {
-			// Gestion des exceptions
-				System.out.println("oupsi, j'ai pas envoyé mon certif autosigné");
-			}
-		// Reception du certif du serveur
-			Certificat certifServeur = null;
-		try {
-			certifServeur=  (Certificat) this.ois.readObject();
-			System.out.println(certifServeur);
-			} catch (Exception e) {
-			// Gestion des exceptions
-				System.out.println("oupsi, j'ai pas le certif du serveur");
-			}
-		//Verification certif serveur
-		boolean okcertifserveur= certifServeur.verifCertif(certifServeur.pubkey);
-	}
+	
 	
 	public void affichage_da() {
 		// Affichage de la liste des équipements de DA.
@@ -287,7 +263,7 @@ public class Equipement {
 	}
 		
 	public Certificat monCertif() {
-		return monCert;
+		return this.monCert;
 		// Recuperation du certificat auto-signé.
 	}
 }
