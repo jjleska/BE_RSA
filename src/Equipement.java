@@ -212,9 +212,21 @@ public class Equipement {
 			// Gestion des exceptions
 				System.out.println("oupsi, j'ai pas le certif du serveur");
 			}
+
 		//Verification certif serveur
 		boolean okcertifserveur= certifServeur.verifCertif(certifServeur.pubkey);
+		if (okcertifserveur) {
+			System.out.println("Certificat serveur validé");
+			//Demande utilisateur pour l'ajout du serveur
+			System.out.println("Ajouter le serveur ?(y/n)");
+			//String eq_name = user_input.next();
+			
+		}
+		else {
+			System.out.println("Certificat serveur invalide");
+		}
 	}
+	
 	
 	
 	
