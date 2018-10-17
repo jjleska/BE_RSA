@@ -1,3 +1,4 @@
+import java.io.Serializable;
 import java.math.BigInteger;
 import java.security.PrivateKey;
 import java.security.PublicKey;
@@ -13,8 +14,12 @@ import org.bouncycastle.operator.ContentSigner;
 import org.bouncycastle.operator.OperatorCreationException;
 import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
 
-public class Certificat {
+public class Certificat implements Serializable{
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	static private BigInteger seqnum = BigInteger.ZERO;
 	public X509Certificate x509;
 	public PublicKey pubkey;
@@ -25,7 +30,7 @@ public class Certificat {
 		// CN = nom, la clé publique contenu dans PaireClesRSA,
 		// la durée de validité.
 		
-		PublicKey pubkey = cle.Publique();
+		pubkey = cle.Publique();
 		PrivateKey privkey = cle.Privee();
 		ContentSigner sigGen;
 		
@@ -53,14 +58,13 @@ public class Certificat {
 		x509 = converter.getCertificate(v1CertGen.build(sigGen));
 	
 	}
-	
-	Certificat(String nom1, String nom2, PaireClesRSA cle1, PaireClesRSA cle2, int validityDays) throws CertificateException {
+
+	Certificat(String nom1, String nom2, PublicKey pubkey1, PrivateKey privkey2, int validityDays) throws CertificateException {
 		// Constructeur d’un certificat auto-signé avec
 		// CN = nom, la clé publique contenu dans PaireClesRSA,
 		// la durée de validité.
 		
-		PublicKey pubkey1 = cle1.Publique();
-		PrivateKey privkey2 = cle2.Privee();
+
 		ContentSigner sigGen;
 		
 		try {
@@ -87,6 +91,9 @@ public class Certificat {
 		x509 = converter.getCertificate(v1CertGen.build(sigGen));
 	
 	}
+	
+
+		
 	public String toString(){
 		return this.x509.toString();
 	}

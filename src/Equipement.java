@@ -33,6 +33,7 @@ public class Equipement {
 	private ObjectOutputStream oos = null;
 	
 	
+	
 	Equipement (String nom, int port) throws Exception {
 		// Constructeur de l’equipement identifie par nom
 		// et qui « écoutera » sur le port port.
@@ -161,47 +162,46 @@ public class Equipement {
 	
 	//Serveur
 	public void InitInsertionServer(){
-		// Reception du certificat client
-		Certificat clientCert = null;
+		// Reception de la cle client
+		PublicKey clientPKey = null;
 			try {
-				clientCert = (Certificat) this.ois.readObject();
-				System.out.println(clientCert);
+				clientPKey = (PublicKey) this.ois.readObject();
+				System.out.println(clientPKey);
 				} catch (Exception e) {
 				// Gestion des exceptions
 					System.out.println("oupsi, reception failed :(");
 				}
-			if(clientCert != null){
-				
-				if (clientCert.verifCertif(clientCert.pubkey)){
-					try {
-						this.oos.writeObject(this.monCertif());
-						this.oos.flush();
+			if(clientPKey != null){
+				//Creation du certificat
+				try {
+						Certificat serv_user = new Certificat(this.monNom, "bob", clientPKey, this.maCle.Privee(), 60);
+						System.out.println(serv_user);
+						this.oos.writeObject(serv_user);
+						this.oos.reset();
 						} catch (Exception e) {
 						// Gestion des exceptions
-							System.out.println("oupsi, emission failed :(");
-						}
-				}
+							System.out.println("oupsi, user certificate was not sent ");
+						}}
 				else{
 					try {
 						this.oos.writeObject("NOPE");
 						this.oos.flush();
 						} catch (Exception e) {
 						// Gestion des exceptions
-							System.out.println("oupsi, emission failed :(");
+							System.out.println("Wrong key received");
 						}
 				}
 			}
-	}
 	
 	public void initInsertionClient () {
 		// Demande au serveur à s'inserer en envoyant mon certificat
 			try {
-
-			this.oos.writeObject(this.monCertif());
-			this.oos.flush();
+				
+			this.oos.writeObject(this.monCert.pubkey);
+			this.oos.reset();
 			} catch (Exception e) {
 			// Gestion des exceptions
-				System.out.println("oupsi, j'ai pas envoyé mon certif autosigné");
+				System.out.println("oupsi, j'ai pas envoyé ma clé");
 			}
 		// Reception du certif du serveur
 			Certificat certifServeur = null;
@@ -213,7 +213,7 @@ public class Equipement {
 				System.out.println("oupsi, j'ai pas le certif du serveur");
 			}
 
-		//Verification certif serveur
+		//Verification certif serveur //START HERE
 		boolean okcertifserveur= certifServeur.verifCertif(certifServeur.pubkey);
 		if (okcertifserveur) {
 			System.out.println("Certificat serveur validé");
@@ -235,7 +235,7 @@ public class Equipement {
 		pk1 = new PaireClesRSA();
 		pk2 = new PaireClesRSA();
 		
-		Certificat newc= new Certificat(this.monNom,equb.monNom,pk1, pk2, 60);
+		Certificat newc= new Certificat(this.monNom,equb.monNom,pk1.Publique(), pk2.Privee(), 60);
 		
 		if(newc.verifCertif(pk2.Publique()))
 		{
