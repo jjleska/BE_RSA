@@ -17,6 +17,7 @@ public class Certificat {
 	
 	static private BigInteger seqnum = BigInteger.ZERO;
 	public X509Certificate x509;
+	public PublicKey pubkey;
 	
 	
 	Certificat(String nom, PaireClesRSA cle, int validityDays) throws CertificateException {
