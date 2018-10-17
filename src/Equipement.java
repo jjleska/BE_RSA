@@ -19,6 +19,7 @@ public class Equipement {
 	private String monNom; // Identite de l’equipement.
 	private int monPort; // Le numéro de port d’ecoute.
 	private static ListeCertif CA;//La liste CA
+	private static ListeCertif DA;//La liste DA
 	
 	
 	//Socket attributes
@@ -94,7 +95,7 @@ public class Equipement {
 	
 				} catch (IOException e) {
 				// Gestion des exceptions
-					System.out.println("Server socket failed");
+					
 				}
 				// Attente de connextions
 				try {

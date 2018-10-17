@@ -6,6 +6,8 @@ import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.sql.Date;
 
+import javax.xml.bind.DatatypeConverter;
+
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo;
 import org.bouncycastle.cert.X509v1CertificateBuilder;
@@ -92,7 +94,9 @@ public class Certificat implements Serializable{
 	
 	}
 	
-
+	public String getSignature() {
+		return DatatypeConverter.printHexBinary(x509.getSignature());
+	}
 		
 	public String toString(){
 		return this.x509.toString();
