@@ -35,6 +35,7 @@ public class Equipement {
 	private ObjectOutputStream oos = null;
 	
 	private static Scanner user_input=null;
+	private static boolean quitter=false;
 	
 
 	Equipement (String nom, int port) throws Exception {
@@ -76,76 +77,80 @@ public class Equipement {
 		}
 
 		
-		
-		System.out.println("Choisir une option :\n i=> Informations sur l'équipement\n r=> Liste des équipements du réseau domestique\n u=> Liste des équipements de UT\n s=>Insertion serveur\n c=>Insertion client\n q=>quitter\n");
-		String option = user_input.next();
-		
-		switch(option) {
-		
-		//init serveur
-		case "s" :
-			// Creation de socket (TCP)
-			try {
-			eq.serverSocket = new ServerSocket(eq.monPort);
-
-			} catch (IOException e) {
-			// Gestion des exceptions
-				System.out.println("Server socket failed");
-			}
-			// Attente de connextions
-			try {
-				eq.NewServerSocket = eq.serverSocket.accept();
-			} catch (Exception e) {
-			// Gestion des exceptions
-				System.out.println("New socket creation failed");
-			}
-			// Creation des flux natifs et evolues
-			try {
-				eq.NativeIn = eq.NewServerSocket.getInputStream();
-				eq.ois = new ObjectInputStream(eq.NativeIn);
-				eq.NativeOut = eq.NewServerSocket.getOutputStream();
-				eq.oos = new ObjectOutputStream(eq.NativeOut);
-
+		while (!quitter) {
+			System.out.println("Choisir une option :\n i=> Informations sur l'équipement\n r=> Liste des équipements du réseau domestique\n u=> Liste des équipements de UT\n s=>Insertion serveur\n c=>Insertion client\n q=>quitter\n");
+			String option = user_input.next();
+			
+			switch(option) {
+			
+			case "q":
+				quitter=true;
+				break;
+			//init serveur
+			case "s" :
+				// Creation de socket (TCP)
+				try {
+				eq.serverSocket = new ServerSocket(eq.monPort);
+	
+				} catch (IOException e) {
+				// Gestion des exceptions
+					System.out.println("Server socket failed");
+				}
+				// Attente de connextions
+				try {
+					eq.NewServerSocket = eq.serverSocket.accept();
+				} catch (Exception e) {
+				// Gestion des exceptions
+					System.out.println("New socket creation failed");
+				}
+				// Creation des flux natifs et evolues
+				try {
+					eq.NativeIn = eq.NewServerSocket.getInputStream();
+					eq.ois = new ObjectInputStream(eq.NativeIn);
+					eq.NativeOut = eq.NewServerSocket.getOutputStream();
+					eq.oos = new ObjectOutputStream(eq.NativeOut);
+	
+					
+	
+				} catch (IOException e) {
+				// Gestion des exceptions
+	
+					System.out.println("Streams failed");
+				}
 				
-
-			} catch (IOException e) {
-			// Gestion des exceptions
-
-				System.out.println("Streams failed");
-			}
+				eq.InitInsertionServer();
+				break;
 			
-			eq.InitInsertionServer();
-			break;
-		
-		//init client
-		case "c" :
-			// Creation de socket (TCP)
-			try {
-				eq.clientSocket = new Socket("127.0.0.1", 5000);
-			} catch (Exception e) {
-			// Gestion des exceptions
-				System.out.println("Socket creation failed");
+			//init client
+			case "c" :
+				// Creation de socket (TCP)
+				try {
+					eq.clientSocket = new Socket("127.0.0.1", 5000);
+				} catch (Exception e) {
+				// Gestion des exceptions
+					System.out.println("Socket creation failed");
+				}
+				// Creation des flux natifs et evolues
+				try {
+					eq.NativeOut = eq.clientSocket.getOutputStream();
+					eq.oos = new ObjectOutputStream(eq.NativeOut);
+					eq.NativeIn = eq.clientSocket.getInputStream();
+					eq.ois = new ObjectInputStream(eq.NativeIn);
+	
+				} catch (Exception e) {
+				// Gestion des exceptions
+					System.out.println("Streams failed");
+				}
+				eq.initInsertionClient();		
+				break;
+				
+			case "i" :
+				System.out.println(monCert);
+				break;
+			case "u":
+				CA.afficheCA();
+				break;
 			}
-			// Creation des flux natifs et evolues
-			try {
-				eq.NativeOut = eq.clientSocket.getOutputStream();
-				eq.oos = new ObjectOutputStream(eq.NativeOut);
-				eq.NativeIn = eq.clientSocket.getInputStream();
-				eq.ois = new ObjectInputStream(eq.NativeIn);
-
-			} catch (Exception e) {
-			// Gestion des exceptions
-				System.out.println("Streams failed");
-			}
-			eq.initInsertionClient();		
-			break;
-			
-		case "i" :
-			System.out.println(monCert);
-			break;
-		case "u":
-			CA.afficheCA();
-			break;
 		}
 	
 
