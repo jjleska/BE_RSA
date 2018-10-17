@@ -1,3 +1,10 @@
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.OutputStream;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.security.PublicKey;
 import java.security.Security;
 import java.security.cert.CertificateException;
@@ -11,6 +18,19 @@ public class Equipement {
 	private Certificat monCert; // Le certificat auto-signe.
 	private String monNom; // Identite de l’equipement.
 	private int monPort; // Le numéro de port d’ecoute.
+	
+	//Socket attributes
+	private int ServerPort;
+	private String ServerName;
+	private Socket clientSocket = null;
+	
+	private ServerSocket serverSocket = null;
+	private Socket NewServerSocket = null;
+	
+	private InputStream NativeIn = null;
+	private ObjectInputStream ois = null;
+	private OutputStream NativeOut = null;
+	private ObjectOutputStream oos = null;
 	
 	
 	Equipement (String nom, int port) throws Exception {
@@ -30,6 +50,8 @@ public class Equipement {
 		Scanner user_input = new Scanner(System.in);
 		System.out.println("Nom de l'equipement ?");
 		String eq_name = user_input.next();
+		
+
 
 		Equipement eq;
 		try {
@@ -51,6 +73,51 @@ public class Equipement {
 			System.out.println(eq.monCert);
 		}else{
 			System.out.println("BITE");
+		}
+		
+		
+		System.out.println("S'agit-il d'un serveur? (y/n)");
+		String serv = user_input.next();
+	
+		if (serv.equals("y")){
+			// Creation de socket (TCP)
+			try {
+			eq.serverSocket = new ServerSocket(eq.monPort);
+			} catch (IOException e) {
+			// Gestion des exceptions
+			}
+			// Attente de connextions
+			try {
+				eq.NewServerSocket = eq.serverSocket.accept();
+			} catch (Exception e) {
+			// Gestion des exceptions
+			}
+			// Creation des flux natifs et evolues
+			try {
+				eq.NativeIn = eq.NewServerSocket.getInputStream();
+				eq.ois = new ObjectInputStream(eq.NativeIn);
+				eq.NativeOut = eq.NewServerSocket.getOutputStream();
+				eq.oos = new ObjectOutputStream(eq.NativeOut);
+			} catch (IOException e) {
+			// Gestion des exceptions
+			}
+		}
+		else {
+			// Creation de socket (TCP)
+			try {
+				eq.clientSocket = new Socket(eq.ServerName,eq.ServerPort);
+			} catch (Exception e) {
+			// Gestion des exceptions
+			}
+			// Creation des flux natifs et evolues
+			try {
+				eq.NativeOut = eq.clientSocket.getOutputStream();
+				eq.oos = new ObjectOutputStream(eq.NativeOut);
+				eq.NativeIn = eq.clientSocket.getInputStream();
+				eq.ois = new ObjectInputStream(eq.NativeIn);
+			} catch (Exception e) {
+			// Gestion des exceptions
+			}
 		}
 		
 		Equipement eqb;
@@ -84,7 +151,7 @@ public class Equipement {
 		{
 			System.out.println(newc);
 		}else{
-			System.out.println("BITE AUSSI");
+			System.out.println("NOPE");
 		}
 		
 		return newc;
