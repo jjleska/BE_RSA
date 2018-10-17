@@ -204,6 +204,28 @@ public class Equipement {
 		
 	}
 	
+	public void initInsertionClient () {
+		// Demande au serveur à s'inserer en envoyant mon certificat
+			try {
+			this.oos.writeObject(this.monCert);
+			this.oos.flush();
+			} catch (Exception e) {
+			// Gestion des exceptions
+				System.out.println("oupsi, j'ai pas envoyé mon certif autosigné");
+			}
+		// Reception du certif du serveur
+			Certificat certifServeur = null;
+		try {
+			certifServeur=  (Certificat) this.ois.readObject();
+			System.out.println(certifServeur);
+			} catch (Exception e) {
+			// Gestion des exceptions
+				System.out.println("oupsi, j'ai pas le certif du serveur");
+			}
+		//Verification certif serveur
+		boolean okcertifserveur= certifServeur.verifCertif(certifServeur.pubkey);
+	}
+	
 	public void affichage_da() {
 		// Affichage de la liste des équipements de DA.
 	}
