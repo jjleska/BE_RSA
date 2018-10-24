@@ -25,7 +25,7 @@ public class Certificat implements Serializable{
 	static private BigInteger seqnum = BigInteger.ZERO;
 	public X509Certificate x509;
 	public PublicKey pubkey;
-	private String signataire;
+	private String signataire, destinataire;
 	
 	
 	Certificat(String nom, PaireClesRSA cle, int validityDays) throws CertificateException {
@@ -50,7 +50,7 @@ public class Certificat implements Serializable{
 		X500Name issuer = new X500Name ("CN="+nom);
 		this.signataire=nom;
 		X500Name subject = new X500Name ("CN="+nom);
-		
+		this.destinataire = nom;
 		seqnum=seqnum.add(BigInteger.ONE);
 		Date startDate = new Date(System.currentTimeMillis());
 		Date endDate = new Date(System.currentTimeMillis()+validityDays*24*60*60*1000);
@@ -85,6 +85,7 @@ public class Certificat implements Serializable{
 		X500Name issuer = new X500Name ("CN="+nom1);
 		signataire=nom1;
 		X500Name subject = new X500Name ("CN="+nom2);
+		destinataire = nom2;
 		seqnum=seqnum.add(BigInteger.ONE);
 		Date startDate = new Date(System.currentTimeMillis());
 		Date endDate = new Date(System.currentTimeMillis()+validityDays*24*60*60*1000);
@@ -105,6 +106,9 @@ public class Certificat implements Serializable{
 	
 	public String getIssuer() {
 		return signataire;
+	}
+	public String getDest() {
+		return destinataire;
 	}
 		
 	public String toString(){
