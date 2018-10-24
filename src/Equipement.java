@@ -58,8 +58,9 @@ public class Equipement {
 		user_input = new Scanner(System.in);
 		System.out.println("Nom de l'equipement ?");
 		String eq_name = user_input.next();
-		System.out.println("Port ?");
-		int monport = Integer.parseInt(user_input.next());
+
+		int monport = 4000;
+		int portserv=7000;
 
 
 		Equipement eq;
@@ -91,6 +92,9 @@ public class Equipement {
 				break;
 			//init serveur
 			case "s" :
+				System.out.println("Port ?");
+				monport = Integer.parseInt(user_input.next());
+				eq.monPort = monport;
 				// Creation de socket (TCP)
 				try {
 				eq.serverSocket = new ServerSocket(eq.monPort);
@@ -122,13 +126,16 @@ public class Equipement {
 				}
 				
 				eq.InitInsertionServer();
+				eq.NewServerSocket.close();
 				break;
 			
 			//init client
 			case "c" :
+				System.out.println("Port serveur ?");
+				portserv = Integer.parseInt(user_input.next());
 				// Creation de socket (TCP)
 				try {
-					eq.clientSocket = new Socket("127.0.0.1", monport);
+					eq.clientSocket = new Socket("127.0.0.1", portserv);
 				} catch (Exception e) {
 				// Gestion des exceptions
 					System.out.println("Socket creation failed");
@@ -144,7 +151,8 @@ public class Equipement {
 				// Gestion des exceptions
 					System.out.println("Streams failed");
 				}
-				eq.initInsertionClient();		
+				eq.initInsertionClient();
+				eq.clientSocket.close();
 				break;
 				
 			case "i" :
@@ -153,8 +161,65 @@ public class Equipement {
 			case "u":
 				CA.afficheCA();
 				break;
-				
+			
+			//Synchro serveur
 			case "ss" :
+				System.out.println("Port ?");
+				monport = Integer.parseInt(user_input.next());
+				eq.monPort = monport;
+				try {
+					eq.serverSocket = new ServerSocket(eq.monPort);
+		
+					} catch (IOException e) {
+					// Gestion des exceptions
+						
+					}
+					// Attente de connextions
+					try {
+						eq.NewServerSocket = eq.serverSocket.accept();
+					} catch (Exception e) {
+					// Gestion des exceptions
+						System.out.println("New socket creation failed");
+					}
+					// Creation des flux natifs et evolues
+					try {
+						eq.NativeIn = eq.NewServerSocket.getInputStream();
+						eq.ois = new ObjectInputStream(eq.NativeIn);
+						eq.NativeOut = eq.NewServerSocket.getOutputStream();
+						eq.oos = new ObjectOutputStream(eq.NativeOut);
+		
+						
+		
+					} catch (IOException e) {
+					// Gestion des exceptions
+		
+						System.out.println("Streams failed");
+					}
+					eq.NewServerSocket.close();
+				break;
+			
+			//Synchro client
+			case "sc":
+				System.out.println("Port serveur ?");
+				portserv = Integer.parseInt(user_input.next());
+				// Creation de socket (TCP)
+				try {
+					eq.clientSocket = new Socket("127.0.0.1", portserv);
+				} catch (Exception e) {
+				// Gestion des exceptions
+					System.out.println("Socket creation failed");
+				}
+				// Creation des flux natifs et evolues
+				try {
+					eq.NativeOut = eq.clientSocket.getOutputStream();
+					eq.oos = new ObjectOutputStream(eq.NativeOut);
+					eq.NativeIn = eq.clientSocket.getInputStream();
+					eq.ois = new ObjectInputStream(eq.NativeIn);
+	
+				} catch (Exception e) {
+				// Gestion des exceptions
+					System.out.println("Streams failed");
+				}
 				break;
 			}
 			
