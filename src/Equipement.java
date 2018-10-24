@@ -192,8 +192,9 @@ public class Equipement {
 		
 						System.out.println("Streams failed");
 					}
-					eq.envoiliste();
 					eq.recoitliste();
+					eq.envoiliste();
+
 					//eq.NewServerSocket.close();
 				break;
 			
@@ -515,8 +516,12 @@ public class Equipement {
 				temp_pubkey=  (PublicKey) this.ois.readObject();
 
 				temp_certif=  (Certificat) this.ois.readObject();
-				this.DA.put(temp_pubkey, temp_certif);
+				if (!this.DA.containsKey(temp_pubkey)&&!this.CA.containsKey(temp_pubkey)) {
+					this.DA.put(temp_pubkey, temp_certif);
+				}
+				
 			}
+			//System.out.println(this.DA);
 			this.DA.afficheDA();
 			
 		}catch(Exception e){
