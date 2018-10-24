@@ -195,6 +195,8 @@ public class Equipement {
 		
 						System.out.println("Streams failed");
 					}
+					eq.envoiliste();
+					eq.recoitliste();
 					eq.NewServerSocket.close();
 				break;
 			
@@ -220,6 +222,9 @@ public class Equipement {
 				// Gestion des exceptions
 					System.out.println("Streams failed");
 				}
+				eq.envoiliste();
+				eq.recoitliste();
+				eq.clientSocket.close();
 				break;
 			}
 			
@@ -304,7 +309,7 @@ public class Equipement {
 							System.out.println("oupsi, user certificate was not sent ");
 						}
 				try{
-					//Envoi du DA du client
+				//Envoi du DA du client
 					Integer new_DA_size = (Integer) this.CA.size() + this.DA.size();
 					System.out.println(new_DA_size);
 						//Envoi le nombre d'objets a recuperer 
@@ -467,6 +472,60 @@ public class Equipement {
 			System.out.println("Equipement ajouté dans DA de "+this.monNom);
 		}
 	}
+	public void envoiliste() {
+		try {
+			Integer new_DA_size = (Integer) this.CA.size() + this.DA.size();
+			System.out.println(new_DA_size);
+				//Envoi le nombre d'objets a recuperer 
+			this.oos.writeObject(new_DA_size);
+			this.oos.reset();
+			
+		}catch(Exception e){
+				
+			System.out.println("Error in DA size sending : " + e);
+			}
+		try{
+				//Envoie de CA(A) et DA(A)
+			for(PublicKey key : this.CA.keySet())
+			{
+				this.oos.writeObject(key);
+				this.oos.reset();
+				this.oos.writeObject(this.CA.get(key));
+				this.oos.reset();
+			}
+			for(PublicKey key : this.DA.keySet())
+			{
+				this.oos.writeObject(key);
+				this.oos.reset();
+				this.oos.writeObject(this.DA.get(key));
+				this.oos.reset();
+			}
+		}catch(Exception e){
+			System.out.println("Error in DA sending");
+		}
+	
+	}
+	
+	public void recoitliste() {
+		try{
+			int new_DA_size = (Integer) this.ois.readObject();
+			System.out.println(new_DA_size);
+			PublicKey temp_pubkey;
+			Certificat temp_certif;
+			for (int i = 0; i<new_DA_size; i++)
+			{
+				temp_pubkey=  (PublicKey) this.ois.readObject();
+
+				temp_certif=  (Certificat) this.ois.readObject();
+				this.DA.put(temp_pubkey, temp_certif);
+			}
+			this.DA.afficheDA();
+			System.out.println(this.DA);
+		}catch(Exception e){
+			System.out.println("DA reception failed");
+		}
+	}
+	
 	
 	
 	public void affichage_da() {
