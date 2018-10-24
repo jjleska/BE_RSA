@@ -58,12 +58,14 @@ public class Equipement {
 		user_input = new Scanner(System.in);
 		System.out.println("Nom de l'equipement ?");
 		String eq_name = user_input.next();
-		
+
+		int monport = 4000;
+		int portserv=7000;
 
 
 		Equipement eq;
 		try {
-			eq = new Equipement(eq_name, 5000);
+			eq = new Equipement(eq_name, monport);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -80,7 +82,7 @@ public class Equipement {
 
 		
 		while (!quitter) {
-			System.out.println("Choisir une option :\n i=> Informations sur l'équipement\n r=> Liste des équipements du réseau domestique\n u=> Liste des équipements de UT\n s=>Insertion serveur\n c=>Insertion client\n q=>quitter\n");
+			System.out.println("Choisir une option :\n i=> Informations sur l'équipement\n r=> Liste des équipements du réseau domestique\n u=> Liste des équipements de UT\n s=>Insertion serveur\n c=>Insertion client\n ss=>Synchronisation serveur\n sc=>Synchronisation client\n q=>quitter\n");
 			String option = user_input.next();
 			
 			switch(option) {
@@ -90,6 +92,9 @@ public class Equipement {
 				break;
 			//init serveur
 			case "s" :
+				System.out.println("Port ?");
+				monport = Integer.parseInt(user_input.next());
+				eq.monPort = monport;
 				// Creation de socket (TCP)
 				try {
 				eq.serverSocket = new ServerSocket(eq.monPort);
@@ -121,13 +126,16 @@ public class Equipement {
 				}
 				
 				eq.InitInsertionServer();
+				eq.NewServerSocket.close();
 				break;
 			
 			//init client
 			case "c" :
+				System.out.println("Port serveur ?");
+				portserv = Integer.parseInt(user_input.next());
 				// Creation de socket (TCP)
 				try {
-					eq.clientSocket = new Socket("127.0.0.1", 5000);
+					eq.clientSocket = new Socket("127.0.0.1", portserv);
 				} catch (Exception e) {
 				// Gestion des exceptions
 					System.out.println("Socket creation failed");
@@ -143,7 +151,8 @@ public class Equipement {
 				// Gestion des exceptions
 					System.out.println("Streams failed");
 				}
-				eq.initInsertionClient();		
+				eq.initInsertionClient();
+				eq.clientSocket.close();
 				break;
 				
 			case "i" :
@@ -152,7 +161,69 @@ public class Equipement {
 			case "u":
 				CA.afficheCA();
 				break;
+			
+			//Synchro serveur
+			case "ss" :
+				System.out.println("Port ?");
+				monport = Integer.parseInt(user_input.next());
+				eq.monPort = monport;
+				try {
+					eq.serverSocket = new ServerSocket(eq.monPort);
+		
+					} catch (IOException e) {
+					// Gestion des exceptions
+						
+					}
+					// Attente de connextions
+					try {
+						eq.NewServerSocket = eq.serverSocket.accept();
+					} catch (Exception e) {
+					// Gestion des exceptions
+						System.out.println("New socket creation failed");
+					}
+					// Creation des flux natifs et evolues
+					try {
+						eq.NativeIn = eq.NewServerSocket.getInputStream();
+						eq.ois = new ObjectInputStream(eq.NativeIn);
+						eq.NativeOut = eq.NewServerSocket.getOutputStream();
+						eq.oos = new ObjectOutputStream(eq.NativeOut);
+		
+						
+		
+					} catch (IOException e) {
+					// Gestion des exceptions
+		
+						System.out.println("Streams failed");
+					}
+					eq.NewServerSocket.close();
+				break;
+			
+			//Synchro client
+			case "sc":
+				System.out.println("Port serveur ?");
+				portserv = Integer.parseInt(user_input.next());
+				// Creation de socket (TCP)
+				try {
+					eq.clientSocket = new Socket("127.0.0.1", portserv);
+				} catch (Exception e) {
+				// Gestion des exceptions
+					System.out.println("Socket creation failed");
+				}
+				// Creation des flux natifs et evolues
+				try {
+					eq.NativeOut = eq.clientSocket.getOutputStream();
+					eq.oos = new ObjectOutputStream(eq.NativeOut);
+					eq.NativeIn = eq.clientSocket.getInputStream();
+					eq.ois = new ObjectInputStream(eq.NativeIn);
+	
+				} catch (Exception e) {
+				// Gestion des exceptions
+					System.out.println("Streams failed");
+				}
+				break;
 			}
+			
+			
 		}
 	
 
@@ -380,6 +451,22 @@ public class Equipement {
 		
 	}
 	
+
+	public void majDA(Equipement C, Equipement B) {
+		//On met a jour DA[A] apres l'insertion de C alors qu'on connait directement B
+		Certificat dansa1 = null;
+		Certificat dansa2 = null;
+		Certificat dansb1 = null;
+		Certificat dansb2 = null;
+		dansa1 = this.DA.get(C.maClePub());
+		dansa2 = this.CA.get(C.maClePub());
+		dansb1 = B.DA.get(C.maClePub());
+		dansb2 = B.CA.get(C.maClePub());
+		if ((dansa1==null)&&(dansa2==null)&&((dansb1!=null)||(dansb2!=null))) {
+			this.DA.put(C.maClePub(),C.monCertif());
+			System.out.println("Equipement ajouté dans DA de "+this.monNom);
+		}
+	}
 	
 	
 	public void affichage_da() {
