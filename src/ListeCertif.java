@@ -8,4 +8,7 @@ public class ListeCertif extends HashMap <PublicKey,Certificat> {
 			System.out.println("Certificat :"+this.get(key).getSignature()+"\n");
 		}
 	}
+	public void afficheDA(){
+		
+	}
 }

@@ -46,10 +46,11 @@ public class Equipement {
 		this.monNom = nom;
 		this.monPort = port;
 		this.CA=new ListeCertif();
+		this.DA=new ListeCertif();
 		
 	}
 	
-	public static void main(String[] args) throws CertificateException, IOException
+	public static void main(String[] args) throws CertificateException, IOException, ClassNotFoundException
 	{
 		Security.addProvider(new BouncyCastleProvider());
 		
@@ -226,12 +227,42 @@ public class Equipement {
 						else {
 							System.out.println("Certificat invalide");
 						}
-
 						
 				} catch (Exception e) {
 						// Gestion des exceptions
 							System.out.println("oupsi, user certificate was not sent ");
 						}
+				try{
+					//Envoi du DA du client
+					Integer new_DA_size = (Integer) this.CA.size() + this.DA.size();
+					System.out.println(new_DA_size);
+						//Envoi le nombre d'objets a recuperer 
+					this.oos.writeObject(new_DA_size);
+					this.oos.reset();
+					
+					}catch(Exception e){
+						
+						System.out.println("Error in DA size sending : " + e);
+					}
+				try{
+						//Envoie de CA(A) et DA(A)
+					for(PublicKey key : this.CA.keySet())
+					{
+						this.oos.writeObject(key);
+						this.oos.reset();
+						this.oos.writeObject(this.CA.get(key));
+						this.oos.reset();
+					}
+					for(PublicKey key : this.DA.keySet())
+					{
+						this.oos.writeObject(key);
+						this.oos.reset();
+						this.oos.writeObject(this.DA.get(key));
+						this.oos.reset();
+					}
+				}catch(Exception e){
+					System.out.println("Error in DA sending");
+				}
 				
 				}
 				else{
@@ -245,7 +276,7 @@ public class Equipement {
 				}
 			}
 	
-	public void initInsertionClient () throws CertificateException, IOException {
+	public void initInsertionClient () throws CertificateException, IOException, ClassNotFoundException {
 		// Demande au serveur à s'inserer en envoyant sa clé et son nom
 			try {
 				
@@ -289,12 +320,36 @@ public class Equipement {
 			if (repajout.equals("y")) {
 				//Ajout de Serveur dans la CA du client
 				this.CA.put(clepubserveur, certifServeur);
+				
 				//Certification du serveur
 				Certificat certifserv = new Certificat(this.monNom, nomserveur, clepubserveur, this.maCle.Privee(), 60);
 				
 				//Envoi certificat serveur
-				this.oos.writeObject(certifserv);
-				this.oos.reset();
+				try{
+					this.oos.writeObject(certifserv);
+					this.oos.reset();
+				}catch(Exception e){
+					System.out.println("Return server certificate failed");
+				}
+				
+				//Reception de DA
+				try{
+					int new_DA_size = (Integer) this.ois.readObject();
+					System.out.println(new_DA_size);
+					PublicKey temp_pubkey;
+					Certificat temp_certif;
+					for (int i = 0; i<new_DA_size; i++)
+					{
+						temp_pubkey=  (PublicKey) this.ois.readObject();
+
+						temp_certif=  (Certificat) this.ois.readObject();
+						this.DA.put(temp_pubkey, temp_certif);
+					}
+					this.DA.afficheDA();
+					System.out.println(this.DA);
+				}catch(Exception e){
+					System.out.println("DA reception failed");
+				}
 			}
 			else {System.out.println("Refus d'ajout du périphérique");}
 			
