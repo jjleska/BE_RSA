@@ -126,7 +126,8 @@ public class Equipement {
 				}
 				
 				eq.InitInsertionServer();
-				eq.NewServerSocket.close();
+				//eq.NewServerSocket.close();
+
 				break;
 			
 			//init client
@@ -135,6 +136,7 @@ public class Equipement {
 				portserv = Integer.parseInt(user_input.next());
 				// Creation de socket (TCP)
 				try {
+					
 					eq.clientSocket = new Socket("127.0.0.1", portserv);
 				} catch (Exception e) {
 				// Gestion des exceptions
@@ -153,6 +155,7 @@ public class Equipement {
 				}
 				eq.initInsertionClient();
 				eq.clientSocket.close();
+
 				break;
 				
 			case "i" :
@@ -164,16 +167,10 @@ public class Equipement {
 			
 			//Synchro serveur
 			case "ss" :
-				System.out.println("Port ?");
-				monport = Integer.parseInt(user_input.next());
+				//System.out.println("Port ?");
+				//monport = Integer.parseInt(user_input.next());
 				eq.monPort = monport;
-				try {
-					eq.serverSocket = new ServerSocket(eq.monPort);
-		
-					} catch (IOException e) {
-					// Gestion des exceptions
-						
-					}
+
 					// Attente de connextions
 					try {
 						eq.NewServerSocket = eq.serverSocket.accept();
@@ -197,7 +194,7 @@ public class Equipement {
 					}
 					eq.envoiliste();
 					eq.recoitliste();
-					eq.NewServerSocket.close();
+					//eq.NewServerSocket.close();
 				break;
 			
 			//Synchro client
@@ -225,6 +222,7 @@ public class Equipement {
 				eq.envoiliste();
 				eq.recoitliste();
 				eq.clientSocket.close();
+				
 				break;
 			}
 			
@@ -475,7 +473,7 @@ public class Equipement {
 	public void envoiliste() {
 		try {
 			Integer new_DA_size = (Integer) this.CA.size() + this.DA.size();
-			System.out.println(new_DA_size);
+			
 				//Envoi le nombre d'objets a recuperer 
 			this.oos.writeObject(new_DA_size);
 			this.oos.reset();
@@ -509,7 +507,7 @@ public class Equipement {
 	public void recoitliste() {
 		try{
 			int new_DA_size = (Integer) this.ois.readObject();
-			System.out.println(new_DA_size);
+			
 			PublicKey temp_pubkey;
 			Certificat temp_certif;
 			for (int i = 0; i<new_DA_size; i++)
@@ -520,7 +518,7 @@ public class Equipement {
 				this.DA.put(temp_pubkey, temp_certif);
 			}
 			this.DA.afficheDA();
-			System.out.println(this.DA);
+			
 		}catch(Exception e){
 			System.out.println("DA reception failed");
 		}
