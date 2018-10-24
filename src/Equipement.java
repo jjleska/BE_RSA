@@ -58,12 +58,13 @@ public class Equipement {
 		user_input = new Scanner(System.in);
 		System.out.println("Nom de l'equipement ?");
 		String eq_name = user_input.next();
-		
+		System.out.println("Port ?");
+		int monport = Integer.parseInt(user_input.next());
 
 
 		Equipement eq;
 		try {
-			eq = new Equipement(eq_name, 5000);
+			eq = new Equipement(eq_name, monport);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -80,7 +81,7 @@ public class Equipement {
 
 		
 		while (!quitter) {
-			System.out.println("Choisir une option :\n i=> Informations sur l'équipement\n r=> Liste des équipements du réseau domestique\n u=> Liste des équipements de UT\n s=>Insertion serveur\n c=>Insertion client\n q=>quitter\n");
+			System.out.println("Choisir une option :\n i=> Informations sur l'équipement\n r=> Liste des équipements du réseau domestique\n u=> Liste des équipements de UT\n s=>Insertion serveur\n c=>Insertion client\n ss=>Synchronisation serveur\n sc=>Synchronisation client\n q=>quitter\n");
 			String option = user_input.next();
 			
 			switch(option) {
@@ -127,7 +128,7 @@ public class Equipement {
 			case "c" :
 				// Creation de socket (TCP)
 				try {
-					eq.clientSocket = new Socket("127.0.0.1", 5000);
+					eq.clientSocket = new Socket("127.0.0.1", monport);
 				} catch (Exception e) {
 				// Gestion des exceptions
 					System.out.println("Socket creation failed");
@@ -152,7 +153,12 @@ public class Equipement {
 			case "u":
 				CA.afficheCA();
 				break;
+				
+			case "ss" :
+				break;
 			}
+			
+			
 		}
 	
 
@@ -380,6 +386,22 @@ public class Equipement {
 		
 	}
 	
+
+	public void majDA(Equipement C, Equipement B) {
+		//On met a jour DA[A] apres l'insertion de C alors qu'on connait directement B
+		Certificat dansa1 = null;
+		Certificat dansa2 = null;
+		Certificat dansb1 = null;
+		Certificat dansb2 = null;
+		dansa1 = this.DA.get(C.maClePub());
+		dansa2 = this.CA.get(C.maClePub());
+		dansb1 = B.DA.get(C.maClePub());
+		dansb2 = B.CA.get(C.maClePub());
+		if ((dansa1==null)&&(dansa2==null)&&((dansb1!=null)||(dansb2!=null))) {
+			this.DA.put(C.maClePub(),C.monCertif());
+			System.out.println("Equipement ajouté dans DA de "+this.monNom);
+		}
+	}
 	
 	
 	public void affichage_da() {
