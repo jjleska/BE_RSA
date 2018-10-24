@@ -25,6 +25,7 @@ public class Certificat implements Serializable{
 	static private BigInteger seqnum = BigInteger.ZERO;
 	public X509Certificate x509;
 	public PublicKey pubkey;
+	private String signataire;
 	
 	
 	Certificat(String nom, PaireClesRSA cle, int validityDays) throws CertificateException {
@@ -36,6 +37,7 @@ public class Certificat implements Serializable{
 		PrivateKey privkey = cle.Privee();
 		ContentSigner sigGen;
 		
+		
 		try {
 			 sigGen = new JcaContentSignerBuilder("SHA1withRSA").setProvider("BC").build(privkey);
 		} catch (OperatorCreationException e) {
@@ -46,7 +48,9 @@ public class Certificat implements Serializable{
 		
 		SubjectPublicKeyInfo subPubKeyInfo = SubjectPublicKeyInfo.getInstance(pubkey.getEncoded()) ;
 		X500Name issuer = new X500Name ("CN="+nom);
+		this.signataire=nom;
 		X500Name subject = new X500Name ("CN="+nom);
+		
 		seqnum=seqnum.add(BigInteger.ONE);
 		Date startDate = new Date(System.currentTimeMillis());
 		Date endDate = new Date(System.currentTimeMillis()+validityDays*24*60*60*1000);
@@ -79,6 +83,7 @@ public class Certificat implements Serializable{
 		
 		SubjectPublicKeyInfo subPubKeyInfo = SubjectPublicKeyInfo.getInstance(pubkey1.getEncoded()) ;
 		X500Name issuer = new X500Name ("CN="+nom1);
+		signataire=nom1;
 		X500Name subject = new X500Name ("CN="+nom2);
 		seqnum=seqnum.add(BigInteger.ONE);
 		Date startDate = new Date(System.currentTimeMillis());
@@ -96,6 +101,10 @@ public class Certificat implements Serializable{
 	
 	public String getSignature() {
 		return DatatypeConverter.printHexBinary(x509.getSignature());
+	}
+	
+	public String getIssuer() {
+		return signataire;
 	}
 		
 	public String toString(){
