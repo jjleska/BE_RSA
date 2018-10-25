@@ -5,13 +5,18 @@ import java.util.HashMap;
 public class ListeCertif extends HashMap <PublicKey,Certificat> {
 	public void afficheCA() {
 		for (PublicKey key : this.keySet()) {
-			System.out.println("Equipement :" + this.get(key).getIssuer() );
+			System.out.println("Equipement qui nous certifie:" + this.get(key).getIssuer() );
 			System.out.println("cle plublique :" + key.toString() );
 			System.out.println("Certificat :"+this.get(key).getSignature()+"\n");
 		}
 	}
 	public void afficheDA(){
-		
+		for (PublicKey key : this.keySet()) {
+			System.out.println("Source :" + this.get(key).getIssuer() );
+			System.out.println("Destination :"+this.get(key).getDest()+"\n");
+			System.out.println("cle plublique :" + key.toString()+"\n" );
+
+		}
 	}
 	
 	//assuming A is in DA of the source equipment 

@@ -164,6 +164,8 @@ public class Equipement {
 			case "u":
 				CA.afficheCA();
 				break;
+			case "r" : 
+				DA.afficheDA();
 			
 			//Synchro serveur
 			case "ss" :
