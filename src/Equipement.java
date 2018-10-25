@@ -521,7 +521,7 @@ public class Equipement {
 				}
 				
 			}
-			//System.out.println(this.DA);
+			System.out.println(this.DA);
 			this.DA.afficheDA();
 			
 		}catch(Exception e){
