@@ -174,8 +174,6 @@ public class Equipement {
 			case "ss" :
 				
 				eq.monPort = monport;
-				
-
 					// Attente de connextions
 					try {
 						eq.NewServerSocket = eq.serverSocket.accept();
@@ -197,8 +195,22 @@ public class Equipement {
 		
 						System.out.println("Streams failed");
 					}
-					eq.recoitliste();
-					eq.envoiliste();
+					eq.oos.writeObject(eq.maClePub());
+					eq.oos.reset();
+					PublicKey temp_pubkey=  (PublicKey) eq.ois.readObject();
+					
+					if (eq.CA.containsKey(temp_pubkey)) {
+						eq.recoitliste();
+						eq.envoiliste();
+					}
+					else if (eq.DA.containsKey(temp_pubkey)) {
+						
+					}
+					else {
+						System.out.println("Impossible à certifier : composantes indépendantes");
+					}
+
+
 
 					//eq.NewServerSocket.close();
 				break;
@@ -225,8 +237,22 @@ public class Equipement {
 				// Gestion des exceptions
 					System.out.println("Streams failed");
 				}
-				eq.envoiliste();
-				eq.recoitliste();
+				PublicKey temp_pubkeyc=  (PublicKey) eq.ois.readObject();
+				eq.oos.writeObject(eq.maClePub());
+				eq.oos.reset();
+				
+				if (eq.CA.containsKey(temp_pubkeyc)) {
+					eq.envoiliste();
+					eq.recoitliste();
+				}
+				else if (eq.DA.containsKey(temp_pubkeyc)) {
+					
+				}
+				else {
+					System.out.println("Impossible à certifier : composantes indépendantes");
+				}
+				
+
 				eq.clientSocket.close();
 				
 				break;
