@@ -75,6 +75,14 @@ public class Equipement {
 		System.out.println("Port machine?");
 		monport = Integer.parseInt(user_input.next());
 		eq.monPort = monport;
+		// Creation de socket (TCP)
+		try {
+		eq.serverSocket = new ServerSocket(eq.monPort);
+
+		} catch (IOException e) {
+		// Gestion des exceptions
+			
+		}
 	
 		eq.maCle = new PaireClesRSA();
 		try {
@@ -97,14 +105,7 @@ public class Equipement {
 			//init serveur
 			case "s" :
 
-				// Creation de socket (TCP)
-				try {
-				eq.serverSocket = new ServerSocket(eq.monPort);
-	
-				} catch (IOException e) {
-				// Gestion des exceptions
-					
-				}
+				
 				// Attente de connextions
 				try {
 					eq.NewServerSocket = eq.serverSocket.accept();
