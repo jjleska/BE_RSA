@@ -8,6 +8,7 @@ import java.net.Socket;
 import java.security.PublicKey;
 import java.security.Security;
 import java.security.cert.CertificateException;
+import java.util.ArrayList;
 import java.util.Scanner;
 
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
@@ -204,7 +205,13 @@ public class Equipement {
 						eq.envoiliste();
 					}
 					else if (eq.DA.containsKey(temp_pubkey)) {
+
+						ListeCertif CA_client = new ListeCertif();
+						CA_client = eq.recoit_ListeCertif();
+						eq.envoi_ListeCertif(eq.CA);
 						
+						ArrayList<Certificat> certif_chain = new ArrayList<Certificat>();
+						eq.recoit_CertifChain();
 					}
 					else {
 						System.out.println("Impossible à certifier : composantes indépendantes");
@@ -246,7 +253,13 @@ public class Equipement {
 					eq.recoitliste();
 				}
 				else if (eq.DA.containsKey(temp_pubkeyc)) {
+					eq.envoi_ListeCertif(eq.CA);
+					ListeCertif CA_serv = new ListeCertif();
+					CA_serv = eq.recoit_ListeCertif();
 					
+					ArrayList<Certificat> certif_chain = new ArrayList<Certificat>();
+					certif_chain = eq.DA.certifChain(CA_serv, eq.CA);
+					eq.envoi_CertifChain(certif_chain);
 				}
 				else {
 					System.out.println("Impossible à certifier : composantes indépendantes");
@@ -558,6 +571,103 @@ public class Equipement {
 		}catch(Exception e){
 			System.out.println("DA reception failed");
 		}
+	}
+	
+	
+	public void envoi_ListeCertif(ListeCertif input) {
+		try {
+			Integer chaine_size = (Integer) input.size();
+			
+				//Envoi le nombre d'objets a recuperer 
+			this.oos.writeObject(chaine_size);
+			this.oos.reset();
+			
+		}catch(Exception e){
+				
+			System.out.println("Error in chain size sending : " + e);
+			}
+		try{
+				//Envoi de la chaine
+			for(PublicKey key : input.keySet())
+			{
+				this.oos.writeObject(key);
+				this.oos.reset();
+				this.oos.writeObject(input.get(key));
+				this.oos.reset();
+			}
+			
+		}catch(Exception e){
+			System.out.println("Error in chain sending");
+		}
+	
+	}
+	
+	public ListeCertif recoit_ListeCertif() {
+		ListeCertif chaine = new ListeCertif();
+		try{
+			int chaine_size = (Integer) this.ois.readObject();
+			
+			PublicKey temp_pubkey;
+			Certificat temp_certif;
+			for (int i = 0; i<chaine_size; i++)
+			{
+				temp_pubkey=  (PublicKey) this.ois.readObject();
+
+				temp_certif=  (Certificat) this.ois.readObject();
+				
+				chaine.put(temp_pubkey, temp_certif);
+			}
+			
+		}catch(Exception e){
+			System.out.println("chain reception failed");
+		}
+		return chaine;
+	}
+	
+	public void envoi_CertifChain(ArrayList<Certificat> input) {
+		Integer chaine_size = 0;
+		try {
+			chaine_size = (Integer) input.size();
+			
+				//Envoi le nombre d'objets a recuperer 
+			this.oos.writeObject(chaine_size);
+			this.oos.reset();
+			
+		}catch(Exception e){
+				
+			System.out.println("Error in chain size sending : " + e);
+			}
+		try{
+				//Envoi de la chaine
+			for(int i = 0; i<chaine_size;i++)
+			{
+				this.oos.writeObject(input.get(i));
+				this.oos.reset();
+			}
+			
+		}catch(Exception e){
+			System.out.println("Error in chain sending");
+		}
+	
+	}
+	
+	public ArrayList<Certificat> recoit_CertifChain() {
+		ArrayList<Certificat> chaine = new ArrayList<Certificat>();
+		try{
+			int chaine_size = (Integer) this.ois.readObject();
+			
+			Certificat temp_certif;
+			for (int i = 0; i<chaine_size; i++)
+			{
+				temp_certif=  (Certificat) this.ois.readObject();
+				
+				chaine.add(temp_certif);
+			}
+			
+		}catch(Exception e){
+			System.out.println("chain reception failed");
+		}
+		return chaine;
 	}
 	
 	

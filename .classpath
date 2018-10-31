@@ -2,12 +2,11 @@
 <classpath>
 	<classpathentry exported="true" kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8"/>
 	<classpathentry kind="src" path="src"/>
-	<classpathentry exported="true" kind="lib" path="C:/Users/mathi/Downloads/bcmail-jdk15on-160.jar"/>
-	<classpathentry exported="true" kind="lib" path="C:/Users/mathi/Downloads/bcpg-jdk15on-160.jar"/>
-	<classpathentry exported="true" kind="lib" path="C:/Users/mathi/Downloads/bcpkix-jdk15on-160.jar"/>
-	<classpathentry exported="true" kind="lib" path="C:/Users/mathi/Downloads/bcprov-ext-jdk15on-160.jar"/>
-	<classpathentry exported="true" kind="lib" path="C:/Users/mathi/Downloads/bcprov-jdk15on-160.jar"/>
-	<classpathentry exported="true" kind="lib" path="C:/Users/mathi/Downloads/bctest-jdk15on-160.jar"/>
-	<classpathentry exported="true" kind="lib" path="C:/Users/mathi/Downloads/bctls-jdk15on-160.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Gwendal/git/BE_RSA1/BC/bcmail-jdk15on-160.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Gwendal/git/BE_RSA1/BC/bcpg-jdk15on-160.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Gwendal/git/BE_RSA1/BC/bcpkix-jdk15on-160.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Gwendal/git/BE_RSA1/BC/bcprov-jdk15on-160.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Gwendal/git/BE_RSA1/BC/bctest-jdk15on-160.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Gwendal/git/BE_RSA1/BC/bctls-jdk15on-160.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

@@ -1,5 +1,6 @@
 import java.security.PublicKey;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 
 public class ListeCertif extends HashMap <PublicKey,Certificat> {
@@ -19,8 +20,65 @@ public class ListeCertif extends HashMap <PublicKey,Certificat> {
 		}
 	}
 	
+	public ArrayList<Certificat> certifChain(ListeCertif CA_Dest, ListeCertif CA_this)
+	{
+		System.out.println("on commence la chaine de certif !!");
+		ArrayList<PublicKey> sommets_visites = new ArrayList<PublicKey>();
+		ArrayList<Certificat> chemin = new ArrayList<Certificat>();
+		ArrayList<ArrayList<Certificat>> liste_chemins = new ArrayList<ArrayList<Certificat>>();
+		
+		for (PublicKey key : CA_this.keySet())
+		{
+			System.out.println("je visite autour de l'origine");
+			liste_chemins.add(aux(key, CA_Dest, sommets_visites, chemin));
+		}
+		for (int i = 0; i<CA_this.size();i++)
+		{
+			System.out.println("On renvoie le resultat du parcours");
+			if(liste_chemins.get(i) != null)
+				return liste_chemins.get(i);
+		}
+		return null;
+		
+		
+		
+	}
+	
+	private ArrayList<Certificat> aux (PublicKey pubkey, ListeCertif CA_Dest, ArrayList<PublicKey> sommets_visites, ArrayList<Certificat> chemin){
+		sommets_visites.add(pubkey);
+		
+		if(CA_Dest.containsKey(pubkey)){
+			return chemin;
+		}
+		
+		int has_next = 0;
+		for(PublicKey key2 : this.keySet()) //explore all DA keys
+		{
+			if(this.get(pubkey).pubkey == key2 && this.get(key2).verifCertif(key2)) //if we find the next element
+			{
+				has_next += 1;
+				
+				if(!sommets_visites.contains(key2)){
+					sommets_visites.add(key2);
+					ArrayList<Certificat> temp_way = new ArrayList<Certificat>();
+					Collections.copy(temp_way, chemin);
+					temp_way.add(this.get(key2));
+
+					aux(key2, CA_Dest, sommets_visites, chemin);
+					
+				}
+			}
+		}
+		if (has_next == 0){
+			return null;
+		}
+		else{
+			return null;
+		}
+	}
 	//assuming A is in DA of the source equipment 
-	public ArrayList<Certificat> certifChain(String nomDest, ListeCertif CA_Dest, ListeCertif CA_this)
+	/*
+	public ArrayList<Certificat> certifChain( ListeCertif CA_Dest, ListeCertif CA_this)
 	{		
 		ArrayList<ArrayList<Certificat>> ways = new ArrayList<ArrayList<Certificat>>(CA_this.size());
 		ArrayList<Integer> right_ways = new ArrayList<Integer>();
@@ -74,5 +132,5 @@ public class ListeCertif extends HashMap <PublicKey,Certificat> {
 			}
 			return ways.get(right_ways.get(right_index));
 		}
-	}
+	}*/
 }
