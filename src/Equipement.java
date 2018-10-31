@@ -58,6 +58,7 @@ public class Equipement {
 		user_input = new Scanner(System.in);
 		System.out.println("Nom de l'equipement ?");
 		String eq_name = user_input.next();
+		
 
 		int monport = 4000;
 		int portserv=7000;
@@ -71,6 +72,9 @@ public class Equipement {
 			e.printStackTrace();
 			return;
 		}
+		System.out.println("Port machine?");
+		monport = Integer.parseInt(user_input.next());
+		eq.monPort = monport;
 	
 		eq.maCle = new PaireClesRSA();
 		try {
@@ -92,9 +96,7 @@ public class Equipement {
 				break;
 			//init serveur
 			case "s" :
-				System.out.println("Port ?");
-				monport = Integer.parseInt(user_input.next());
-				eq.monPort = monport;
+
 				// Creation de socket (TCP)
 				try {
 				eq.serverSocket = new ServerSocket(eq.monPort);
@@ -169,9 +171,9 @@ public class Equipement {
 			
 			//Synchro serveur
 			case "ss" :
-				//System.out.println("Port ?");
-				//monport = Integer.parseInt(user_input.next());
+				
 				eq.monPort = monport;
+				
 
 					// Attente de connextions
 					try {
