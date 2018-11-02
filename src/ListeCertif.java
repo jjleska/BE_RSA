@@ -9,6 +9,7 @@ public class ListeCertif extends HashMap <PublicKey,Certificat> {
 			System.out.println("Equipement qui nous certifie:" + this.get(key).getIssuer() );
 			System.out.println("cle publique :" + key.toString() );
 			System.out.println("cle protegee :" + this.get(key).pubkey.toString() );
+			
 			//System.out.println("Certificat :"+this.get(key).getSignature()+"\n");
 		}
 	}
@@ -17,6 +18,7 @@ public class ListeCertif extends HashMap <PublicKey,Certificat> {
 			System.out.println("Source :" + this.get(key).getIssuer() );
 			System.out.println("Destination :"+this.get(key).getDest()+"\n");
 			System.out.println("cle plublique :" + key.toString()+"\n" );
+			
 
 		}
 	}
@@ -29,12 +31,13 @@ public class ListeCertif extends HashMap <PublicKey,Certificat> {
 		ArrayList<Certificat> chemin = new ArrayList<Certificat>();
 		ArrayList<ArrayList<Certificat>> liste_chemins = new ArrayList<ArrayList<Certificat>>();
 		
-		for (PublicKey key : CA_this.keySet())
+		for (PublicKey key : CA_Dest.keySet())
 		{
-			System.out.println("je visite autour de l'origine");
-			liste_chemins.add(aux(CA_this.get(key).pubkey, CA_Dest, sommets_visites, chemin));
+			System.out.println("je visite autour de la destination");
+			
+			liste_chemins.add(aux(CA_Dest.get(key).pubkey, CA_this, sommets_visites, chemin));
 		}
-		for (int i = 0; i<CA_this.size();i++)
+		for (int i = 0; i<CA_Dest.size();i++)
 		{
 			System.out.println("On renvoie le resultat du parcours");
 			if(liste_chemins.get(i) != null)
@@ -46,7 +49,7 @@ public class ListeCertif extends HashMap <PublicKey,Certificat> {
 		
 	}
 	
-	private ArrayList<Certificat> aux (PublicKey pubkey, ListeCertif CA_Dest, ArrayList<PublicKey> sommets_visites, ArrayList<Certificat> chemin){
+	private ArrayList<Certificat> aux (PublicKey pubkey, ListeCertif CA_this, ArrayList<PublicKey> sommets_visites, ArrayList<Certificat> chemin){
 		sommets_visites.add(pubkey);
 		
 		System.out.println("jsuis passe");
@@ -57,10 +60,11 @@ public class ListeCertif extends HashMap <PublicKey,Certificat> {
 		int has_next = 0;
 		for(PublicKey key2 : this.keySet()) //explore all DA keys
 		{
-			if(this.get(pubkey).pubkey == key2 && this.get(key2).verifCertif(key2)) //if we find the next element
+			//existe pa
+			if(pubkey == key2 && this.get(key2).verifCertif(key2)) //if we find the next element
 			{
 				has_next += 1;
-				if(CA_Dest.containsKey(this.get(key2).pubkey)){
+				if(CA_this.containsKey(this.get(key2).pubkey)){
 					return chemin;
 				}
 				if(!this.containsKey(this.get(key2).pubkey)){
@@ -74,7 +78,7 @@ public class ListeCertif extends HashMap <PublicKey,Certificat> {
 					Collections.copy(temp_way, chemin);
 					temp_way.add(this.get(key2));
 					
-					aux(key2, CA_Dest, sommets_visites, chemin);
+					aux(key2, CA_this, sommets_visites, chemin);
 					
 				}
 			}

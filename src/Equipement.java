@@ -226,10 +226,10 @@ public class Equipement {
 				//J'envoie ma clé
 				eq.oos.writeObject(eq.maClePub());
 				eq.oos.reset();
-				//Je lis celle du client
-				PublicKey temp_pubkey=  (PublicKey) eq.ois.readObject();
+				//Je lis la reponse du client pour savoir la qte d'info a recevoir
+				PublicKey temp_pubkey=  (PublicKey) eq.ois.readObject(); //donc pas ca
 
-
+				//et les conditions ici aussi sont foireuses
 				if (eq.CA.containsKey(temp_pubkey)) {
 					eq.recoitliste();
 					eq.envoiliste();

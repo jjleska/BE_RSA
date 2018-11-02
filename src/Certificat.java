@@ -70,7 +70,7 @@ public class Certificat implements Serializable{
 		// CN = nom, la clé publique contenu dans PaireClesRSA,
 		// la durée de validité.
 		
-
+		pubkey = pubkey1;
 		ContentSigner sigGen;
 		
 		try {
