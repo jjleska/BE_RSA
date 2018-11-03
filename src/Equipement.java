@@ -268,8 +268,12 @@ public class Equipement {
 				            }   
 					 }
 					//envoie le resultat de la verif de chaine au client
+					eq.oos.writeObject(chaineok);
+					eq.oos.reset();
 					// si ok entre-certification
-					
+					if (chaineok) {
+						eq.InitServerAuto();
+					}
 					//ajouter au DA
 					
 				}
@@ -338,7 +342,11 @@ public class Equipement {
 					
 					eq.envoi_CertifChain(certif_chain);
 					//recoit le res de la verif de chaine
+					Boolean checkcertif=  (Boolean) eq.ois.readObject();
 					//entre certif et ajout au CA
+					if (checkcertif) {
+						eq.initClientAuto();
+					}
 				}
 				else {
 					eq.oos.writeObject((String) "--STOP_SYNC--");
@@ -769,5 +777,180 @@ public class Equipement {
 	public Certificat monCertif() {
 		return this.monCert;
 		// Recuperation du certificat auto-signé.
+	}
+	public void InitServerAuto(){
+		// Reception de la cle publique client et son nom
+		PublicKey clientPKey = null;
+		String nomClient=null;
+		try {
+			clientPKey = (PublicKey) this.ois.readObject();
+			nomClient = (String) this.ois.readObject();
+		} catch (Exception e) {
+			// Gestion des exceptions
+			System.out.println("oupsi, clé client et nom pas reçus");
+		}
+		
+
+		//Si on a récupéré le nom 
+		if((clientPKey != null)){
+			//Creation du certificat
+			try {
+				Certificat serv_user = new Certificat(this.monNom, nomClient, clientPKey, this.maCle.Privee(), 60);
+
+				//Envoi certificat client
+				this.oos.writeObject(serv_user);
+				this.oos.reset();
+
+				//Envoi cle publique serveur et nom
+				this.oos.writeObject(this.maCle.Publique());
+				this.oos.reset();
+				this.oos.writeObject(this.monNom);
+				this.oos.reset();
+
+				//Reception certificat client
+				Certificat certifClient = null;
+				try {
+					certifClient=  (Certificat) this.ois.readObject();
+				} catch (Exception e) {
+					// Gestion des exceptions
+					System.out.println("oupsi, le client ne m'a pas certifié");
+				}
+				//Verification certificat client
+				boolean okcertifclient= certifClient.verifCertif(clientPKey);
+				if (okcertifclient) {
+					System.out.println("Connexion validée");
+					//Ajout de Client dans la CA du serveur
+					this.CA.put(clientPKey, certifClient);
+				}
+				else {
+					System.out.println("Certificat invalide");
+				}
+
+			} catch (Exception e) {
+				// Gestion des exceptions
+				System.out.println("oupsi, user certificate was not sent ");
+			}
+			try{
+				//Envoi du DA du client
+				Integer new_DA_size = (Integer) this.CA.size() + this.DA.size();
+
+				//Envoi le nombre d'objets a recuperer 
+				this.oos.writeObject(new_DA_size);
+				this.oos.reset();
+
+			}catch(Exception e){
+
+				System.out.println("Error in DA size sending : " + e);
+			}
+			try{
+				//Envoie de CA(A) et DA(A)
+				for(PublicKey key : this.CA.keySet())
+				{
+					this.oos.writeObject(key);
+					this.oos.reset();
+					this.oos.writeObject(this.CA.get(key));
+					this.oos.reset();
+				}
+				for(PublicKey key : this.DA.keySet())
+				{
+					this.oos.writeObject(key);
+					this.oos.reset();
+					this.oos.writeObject(this.DA.get(key));
+					this.oos.reset();
+				}
+			}catch(Exception e){
+				System.out.println("Error in DA sending");
+			}
+
+		}
+		else{
+			try {
+				this.oos.writeObject("NOPE");
+				this.oos.flush();
+			} catch (Exception e) {
+				// Gestion des exceptions
+				System.out.println("Refus utilisateur ou mauvaise réception clé");
+			}
+		}
+	}
+	public void initClientAuto () throws CertificateException, IOException, ClassNotFoundException {
+		// Demande au serveur à s'inserer en envoyant sa clé et son nom
+		try {
+
+			this.oos.writeObject(this.monCert.pubkey);
+			this.oos.reset();
+			this.oos.writeObject(this.monNom);
+			this.oos.reset();
+		} catch (Exception e) {
+			// Gestion des exceptions
+			System.out.println("oupsi, j'ai pas envoyé ma clé et mon nom");
+		}
+		// Reception du certif du serveur
+		Certificat certifServeur = null;
+		try {
+			certifServeur=  (Certificat) this.ois.readObject();
+		} catch (Exception e) {
+			// Gestion des exceptions
+			System.out.println("oupsi, j'ai pas le certif du serveur");
+		}
+
+		//Reception cle serveur et nom
+		PublicKey clepubserveur = null;
+		String nomserveur=null;
+		try {
+			clepubserveur=  (PublicKey) this.ois.readObject();
+			nomserveur=  (String) this.ois.readObject();
+
+		} catch (Exception e) {
+			// Gestion des exceptions
+			System.out.println("oupsi, j'ai pas la clé du serveur");
+		}
+
+
+		boolean okcertifserveur= certifServeur.verifCertif(clepubserveur);
+		if (okcertifserveur) {
+			
+
+			//Si l'utilisateur accepte d'ajouter le periphérique on certifie le serveur
+			if (true) {
+				//Ajout de Serveur dans la CA du client
+				this.CA.put(clepubserveur, certifServeur);
+
+				//Certification du serveur
+				Certificat certifserv = new Certificat(this.monNom, nomserveur, clepubserveur, this.maCle.Privee(), 60);
+
+				//Envoi certificat serveur
+				try{
+					this.oos.writeObject(certifserv);
+					this.oos.reset();
+				}catch(Exception e){
+					System.out.println("Return server certificate failed");
+				}
+
+				//Reception de DA
+				try{
+					int new_DA_size = (Integer) this.ois.readObject();
+					//System.out.println(new_DA_size);
+					PublicKey temp_pubkey;
+					Certificat temp_certif;
+					for (int i = 0; i<new_DA_size; i++)
+					{
+						temp_pubkey=  (PublicKey) this.ois.readObject();
+
+						temp_certif=  (Certificat) this.ois.readObject();
+						this.DA.put(temp_pubkey, temp_certif);
+					}
+					//this.DA.afficheDA();
+					//System.out.println(this.DA);
+				}catch(Exception e){
+					System.out.println("DA reception failed");
+				}
+			}
+			else {System.out.println("Refus d'ajout du périphérique");}
+
+		}
+		else {
+			System.out.println("Certificat serveur invalide");
+		}
 	}
 }
