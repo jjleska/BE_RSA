@@ -258,15 +258,11 @@ public class Equipement {
 					ArrayList<Certificat> chaine = eq.recoit_CertifChain();
 					
 					//verifier la chaine
-					Boolean chaineok=true;
-					Certificat temp_certif;
-					 for(int i=0; i<chaine.size(); i++) {
-				            temp_certif=chaine.get(i); 
-				            
-				            if (!temp_certif.verifCertif(temp_certif.pubkey)) {
-				            	chaineok=false;
-				            }   
-					 }
+					Boolean chaineok=false;
+					if (chaine.size()!=0) {
+						chaineok=true;
+						}
+					 System.out.println("Verification de la chaine : "+chaineok);
 					//envoie le resultat de la verif de chaine au client
 					eq.oos.writeObject(chaineok);
 					eq.oos.reset();
