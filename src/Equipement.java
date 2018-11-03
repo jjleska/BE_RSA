@@ -258,6 +258,7 @@ public class Equipement {
 					ArrayList<Certificat> chaine = eq.recoit_CertifChain();
 					
 					//verifier la chaine
+					
 					//ajouter au DA
 				}
 				else if(synchro_message.equals("--STOP_SYNC--")){
@@ -423,7 +424,7 @@ public class Equipement {
 			try{
 				//Envoi du DA du client
 				Integer new_DA_size = (Integer) this.CA.size() + this.DA.size();
-				//System.out.println(new_DA_size);
+
 				//Envoi le nombre d'objets a recuperer 
 				this.oos.writeObject(new_DA_size);
 				this.oos.reset();
