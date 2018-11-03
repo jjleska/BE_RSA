@@ -222,7 +222,7 @@ public class Equipement {
 
 					System.out.println("Streams failed");
 				}
-				System.out.println("Clé publique envoyee? ");
+				//System.out.println("Clé publique envoyee? ");
 				//J'envoie ma clé
 				eq.oos.writeObject(eq.maClePub());
 				eq.oos.reset();
@@ -259,10 +259,14 @@ public class Equipement {
 					
 					//verifier la chaine
 					
+					//entre-certification
+					
 					//ajouter au DA
+					
 				}
 				else if(synchro_message.equals("--STOP_SYNC--")){
 					System.out.println("Composantes independantes");
+					eq.InitInsertionServer();
 				}
 				else{
 					System.out.println("Erreur : le message est errone");
@@ -328,7 +332,8 @@ public class Equipement {
 				else {
 					eq.oos.writeObject((String) "--STOP_SYNC--");
 					eq.oos.reset();
-					System.out.println("Impossible à certifier : composantes indépendantes");
+					System.out.println("Composantes indépendantes");
+					eq.initInsertionClient();
 				}
 				//Fermeture des flux et socket
 				ois.close();
@@ -343,24 +348,6 @@ public class Equipement {
 
 
 		}
-
-
-
-		/*Equipement eqb;
-		try {
-			eqb = new Equipement("blob", 4400);
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return;
-		}
-		try {
-			Certificat cert = eqb.pairing(eq);
-		} catch (CertificateException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return;
-		}*/
 
 
 

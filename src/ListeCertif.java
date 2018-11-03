@@ -14,11 +14,9 @@ public class ListeCertif extends HashMap <PublicKey,Certificat> {
 		}
 	}
 	public void afficheDA(){
+		System.out.println("Les certificats de notre réseau domestique :" );
 		for (PublicKey key : this.keySet()) {
-			System.out.println("Source :" + this.get(key).getIssuer() );
-			System.out.println("Destination :"+this.get(key).getDest()+"\n");
-			System.out.println("cle plublique :" + key.toString()+"\n" );
-			
+			System.out.println(this.get(key).getIssuer() +"=>"+this.get(key).getDest());
 
 		}
 	}
