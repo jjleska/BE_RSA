@@ -226,6 +226,8 @@ public class Equipement {
 				//J'envoie ma clé
 				eq.oos.writeObject(eq.maClePub());
 				eq.oos.reset();
+				
+				/*
 				//Je lis la reponse du client pour savoir la qte d'info a recevoir
 				PublicKey temp_pubkey=  (PublicKey) eq.ois.readObject(); //donc pas ca
 
@@ -240,7 +242,27 @@ public class Equipement {
 					eq.envoi_ListeCertif(eq.CA);
 					
 				}
-				
+				*/
+				String synchro_message=  (String) eq.ois.readObject();
+				System.out.println(synchro_message);
+
+				if (synchro_message.equals("--CA_sync--")) {
+					eq.recoitliste();
+					eq.envoiliste();
+					System.out.println("CA synchro");
+				}
+				else if (synchro_message.equals("--DA_sync--")) {
+					System.out.println("DA synchro starts");
+					eq.envoi_ListeCertif(eq.CA);
+					
+					ArrayList<Certificat> chaine = eq.recoit_CertifChain();
+				}
+				else if(synchro_message.equals("--STOP_SYNC--")){
+					System.out.println("Composantes independantes");
+				}
+				else{
+					System.out.println("Erreur : le message est errone");
+				}
 
 				//Fermeture des flux et socket
 				ois.close();
@@ -275,23 +297,35 @@ public class Equipement {
 				}
 				//Je lis la cle publique envoyee par le serveur
 				PublicKey temp_pubkeyc=  (PublicKey) eq.ois.readObject();
-				//J'envoie la mienne
+				/*//J'envoie la mienne
 				eq.oos.writeObject(eq.maClePub());
-				eq.oos.reset();
+				eq.oos.reset();*/
+				
+				
 
 				if (eq.CA.containsKey(temp_pubkeyc)) {
+					eq.oos.writeObject((String) "--CA_sync--");
+					eq.oos.reset();
 					eq.envoiliste();
 					eq.recoitliste();
 				}
 				else if (eq.DA.containsKey(temp_pubkeyc)) {
+					eq.oos.writeObject((String) "--DA_sync--");
+					eq.oos.reset();
+					eq.oos.writeObject(eq.maClePub());
+					eq.oos.reset();
 					ListeCertif CA_serv = new ListeCertif();
 					CA_serv = eq.recoit_ListeCertif();
 
 					ArrayList<Certificat> certif_chain = new ArrayList<Certificat>();
 					certif_chain = eq.DA.certifChain(CA_serv, eq.CA);
+					System.out.println("until here ok");
 					eq.envoi_CertifChain(certif_chain);
+					System.out.println("here ok?");
 				}
 				else {
+					eq.oos.writeObject((String) "--STOP_SYNC--");
+					eq.oos.reset();
 					System.out.println("Impossible à certifier : composantes indépendantes");
 				}
 				//Fermeture des flux et socket
@@ -669,7 +703,7 @@ public class Equipement {
 
 		}catch(Exception e){
 
-			System.out.println("Error in chain size sending : " + e);
+			System.out.println("Error in certif chain size sending : " + e);
 		}
 		try{
 			//Envoi de la chaine
@@ -680,7 +714,7 @@ public class Equipement {
 			}
 
 		}catch(Exception e){
-			System.out.println("Error in chain sending");
+			System.out.println("Error in certif chain sending");
 		}
 
 	}
