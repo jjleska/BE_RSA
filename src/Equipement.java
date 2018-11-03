@@ -256,6 +256,9 @@ public class Equipement {
 					eq.envoi_ListeCertif(eq.CA);
 					
 					ArrayList<Certificat> chaine = eq.recoit_CertifChain();
+					
+					//verifier la chaine
+					//ajouter au DA
 				}
 				else if(synchro_message.equals("--STOP_SYNC--")){
 					System.out.println("Composantes independantes");
@@ -312,16 +315,14 @@ public class Equipement {
 				else if (eq.DA.containsKey(temp_pubkeyc)) {
 					eq.oos.writeObject((String) "--DA_sync--");
 					eq.oos.reset();
-					eq.oos.writeObject(eq.maClePub());
-					eq.oos.reset();
+
 					ListeCertif CA_serv = new ListeCertif();
 					CA_serv = eq.recoit_ListeCertif();
 
 					ArrayList<Certificat> certif_chain = new ArrayList<Certificat>();
 					certif_chain = eq.DA.certifChain(CA_serv, eq.CA);
-					System.out.println("until here ok");
+					
 					eq.envoi_CertifChain(certif_chain);
-					System.out.println("here ok?");
 				}
 				else {
 					eq.oos.writeObject((String) "--STOP_SYNC--");
@@ -694,8 +695,9 @@ public class Equipement {
 
 	public void envoi_CertifChain(ArrayList<Certificat> input) {
 		Integer chaine_size = 0;
+		chaine_size = (Integer) input.size();
+		System.out.println(chaine_size);
 		try {
-			chaine_size = (Integer) input.size();
 
 			//Envoi le nombre d'objets a recuperer 
 			this.oos.writeObject(chaine_size);
@@ -714,7 +716,7 @@ public class Equipement {
 			}
 
 		}catch(Exception e){
-			System.out.println("Error in certif chain sending");
+			System.out.println("Error in certif chain sending : " + e);
 		}
 
 	}
