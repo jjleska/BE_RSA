@@ -258,8 +258,17 @@ public class Equipement {
 					ArrayList<Certificat> chaine = eq.recoit_CertifChain();
 					
 					//verifier la chaine
-					
-					//entre-certification
+					Boolean chaineok=true;
+					Certificat temp_certif;
+					 for(int i=0; i<chaine.size(); i++) {
+				            temp_certif=chaine.get(i); 
+				            
+				            if (!temp_certif.verifCertif(temp_certif.pubkey)) {
+				            	chaineok=false;
+				            }   
+					 }
+					//envoie le resultat de la verif de chaine au client
+					// si ok entre-certification
 					
 					//ajouter au DA
 					
@@ -328,6 +337,8 @@ public class Equipement {
 					certif_chain = eq.DA.certifChain(CA_serv, eq.CA);
 					
 					eq.envoi_CertifChain(certif_chain);
+					//recoit le res de la verif de chaine
+					//entre certif et ajout au CA
 				}
 				else {
 					eq.oos.writeObject((String) "--STOP_SYNC--");
