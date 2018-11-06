@@ -6,19 +6,23 @@ import java.util.HashMap;
 public class ListeCertif extends HashMap <PublicKey,Certificat> {
 	public void afficheCA() {
 		System.out.println("Equipements en liaison directe :"+"\n" );
+		int i =1;
 		for (PublicKey key : this.keySet()) {
+			System.out.println("EQUIPEMENT "+ i);
 			System.out.println("Nom :" + this.get(key).getIssuer() );
 			System.out.println("cle publique : " + key.toString() );
-			System.out.println("cle protegee : " + this.get(key).pubkey.toString() );
-			
 			System.out.println("Signature : "+this.get(key).getSignature()+"\n");
+			i+=1;
 		}
 	}
 	public void afficheDA(){
 		System.out.println("Les certificats de notre réseau domestique :" );
+		int i =1;
 		for (PublicKey key : this.keySet()) {
+			System.out.println("Certificat "+i);
 			System.out.println(this.get(key).getIssuer() +"=>"+this.get(key).getDest());
 			System.out.println("Signature :"+this.get(key).getSignature()+"\n");
+			i+=1;
 
 		}
 	}
@@ -31,8 +35,10 @@ public class ListeCertif extends HashMap <PublicKey,Certificat> {
 		ArrayList<ArrayList<Certificat>> liste_chemins = new ArrayList<ArrayList<Certificat>>();
 		
 		for (PublicKey key : CA_Dest.keySet())
-		{			
-			liste_chemins.add(aux(CA_Dest.get(key).pubkey, CA_this, sommets_visites, chemin));
+		{	
+			chemin = new ArrayList<Certificat>();
+			aux(CA_Dest.get(key).pubkey, CA_this, sommets_visites, chemin);
+			liste_chemins.add(chemin);
 		}
 		for (int i = 0; i<CA_Dest.size();i++)
 		{
@@ -48,51 +54,43 @@ public class ListeCertif extends HashMap <PublicKey,Certificat> {
 		
 	}
 	
-	private ArrayList<Certificat> aux (PublicKey pubkey, ListeCertif CA_this, ArrayList<PublicKey> sommets_visites, ArrayList<Certificat> chemin){
-		sommets_visites.add(pubkey);
+	private void aux (PublicKey pubkey, ListeCertif CA_this, ArrayList<PublicKey> sommets_visites, ArrayList<Certificat> chemin){
 		
 		if(!this.containsKey(pubkey)){
 			System.out.println("wrong key, problem on first entry");
-			return null;
+			return;
 		}
+
 		int has_next = 0;
 		for(PublicKey key2 : this.keySet()) //explore all DA keys
 		{
-			//existe pa
 			if(pubkey.equals(key2)&& this.get(key2).verifCertif(key2)) //if we find the next element  
 			{
 				has_next += 1;
 				if(CA_this.containsKey(this.get(key2).pubkey)){
-					ArrayList<Certificat> temp_way = new ArrayList<Certificat>();
-					Collections.copy(temp_way, chemin);
-					temp_way.add(this.get(key2));
-					return temp_way;
+					chemin.add(this.get(key2));
+					System.out.println("done");
+					return;
 				}
 				if(!this.containsKey(this.get(key2).pubkey)){
 					System.out.println("fail 1");
-					return null;
+					return;
 				}
 				
 
 				if(!sommets_visites.contains(key2)){
 					sommets_visites.add(key2);
-					ArrayList<Certificat> temp_way = new ArrayList<Certificat>();
-					Collections.copy(temp_way, chemin);
-					temp_way.add(this.get(key2));
-					
-					aux(key2, CA_this, sommets_visites, temp_way);
+					chemin.add(this.get(key2));
+					aux(this.get(key2).pubkey, CA_this, sommets_visites, chemin);
 					
 				}
 			}
 		}
 		if (has_next == 0){
 			System.out.println("fail 2");
-			return null;
+			return;
 		}
-		else{
-			System.out.println("fail 3");
-			return null;
-		}
+
 	}
 	
 	/*	public ArrayList<Certificat> certifChain( ListeCertif CA_Dest, ListeCertif CA_this)
