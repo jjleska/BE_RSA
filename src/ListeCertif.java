@@ -42,8 +42,8 @@ public class ListeCertif extends HashMap <PublicKey,Certificat> {
 		}
 		for (int i = 0; i<CA_Dest.size();i++)
 		{
-			//System.out.print("On renvoie le resultat du parcours : ");
-			//System.out.println(liste_chemins.get(i));
+			System.out.print("On renvoie le resultat du parcours : ");
+			System.out.println(liste_chemins.get(i));
 			if(liste_chemins.get(i) != null)
 				return liste_chemins.get(i);
 		}
