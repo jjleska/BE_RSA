@@ -185,7 +185,9 @@ public class Equipement {
 				break;
 			case "r" : 
 				if(DA.size()!=0) {
-					DA.afficheDA();
+					DA.afficheDA();}
+				else {
+					System.out.println("Ma liste DA est vide : je ne connais que mes voisins directs"+"\n");
 					}
 				break;
 
@@ -252,7 +254,7 @@ public class Equipement {
 					System.out.println("CA synchro");
 				}
 				else if (synchro_message.equals("--DA_sync--")) {
-					System.out.println("DA synchro starts");
+					//System.out.println("DA synchro starts");
 					eq.envoi_ListeCertif(eq.CA);
 					
 					ArrayList<Certificat> chaine = eq.recoit_CertifChain();
@@ -637,8 +639,8 @@ public class Equipement {
 				}
 
 			}
-			System.out.println(this.DA);
-			this.DA.afficheDA();
+			//System.out.println(this.DA);
+			//this.DA.afficheDA();
 
 		}catch(Exception e){
 			System.out.println("DA reception failed");
