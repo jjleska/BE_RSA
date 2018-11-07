@@ -486,6 +486,7 @@ public class Equipement {
 			}catch(Exception e){
 				System.out.println("Error in DA sending");
 			}
+			//this.recoitliste();
 
 		}
 		else{
@@ -564,42 +565,40 @@ public class Equipement {
 
 			if (okcertifserveur) {
 
-				//Si l'utilisateur accepte d'ajouter le periphérique on certifie le serveur
-				if (repajout.equals("y")&&repserveur.equals("y")) {
-					//Ajout de Serveur dans la CA du client
-					this.CA.put(clepubserveur, certifServeur);
 
-					//Certification du serveur
-					Certificat certifserv = new Certificat(this.monNom, nomserveur, clepubserveur, this.maCle.Privee(), 60);
+				//Ajout de Serveur dans la CA du client
+				this.CA.put(clepubserveur, certifServeur);
 
-					//Envoi certificat serveur
-					try{
-						this.oos.writeObject(certifserv);
-						this.oos.reset();
-					}catch(Exception e){
-						System.out.println("Return server certificate failed");
-					}
+				//Certification du serveur
+				Certificat certifserv = new Certificat(this.monNom, nomserveur, clepubserveur, this.maCle.Privee(), 60);
 
-					//Reception de DA
-					try{
-						int new_DA_size = (Integer) this.ois.readObject();
-						//System.out.println(new_DA_size);
-						PublicKey temp_pubkey;
-						Certificat temp_certif;
-						for (int i = 0; i<new_DA_size; i++)
-						{
-							temp_pubkey=  (PublicKey) this.ois.readObject();
-
-							temp_certif=  (Certificat) this.ois.readObject();
-							this.DA.put(temp_pubkey, temp_certif);
-						}
-						//this.DA.afficheDA();
-						//System.out.println(this.DA);
-					}catch(Exception e){
-						System.out.println("DA reception failed");
-					}
+				//Envoi certificat serveur
+				try{
+					this.oos.writeObject(certifserv);
+					this.oos.reset();
+				}catch(Exception e){
+					System.out.println("Return server certificate failed");
 				}
-				else {System.out.println("Refus d'ajout du périphérique");}
+
+				//Reception de DA
+				try{
+					int new_DA_size = (Integer) this.ois.readObject();
+					//System.out.println(new_DA_size);
+					PublicKey temp_pubkey;
+					Certificat temp_certif;
+					for (int i = 0; i<new_DA_size; i++)
+					{
+						temp_pubkey=  (PublicKey) this.ois.readObject();
+
+						temp_certif=  (Certificat) this.ois.readObject();
+						this.DA.put(temp_pubkey, temp_certif);
+					}
+
+				}catch(Exception e){
+					System.out.println("DA reception failed");
+				}
+				//this.envoiliste();
+
 
 			}
 			else {
@@ -683,8 +682,7 @@ public class Equipement {
 				}
 
 			}
-			//System.out.println(this.DA);
-			//this.DA.afficheDA();
+
 
 		}catch(Exception e){
 			System.out.println("DA reception failed");
