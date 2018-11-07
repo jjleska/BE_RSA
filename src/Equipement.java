@@ -188,7 +188,7 @@ public class Equipement {
 					DA.afficheDA();}
 				else {
 					System.out.println("Ma liste DA est vide : je ne connais que mes voisins directs"+"\n");
-					}
+				}
 				break;
 
 				//Synchro serveur
@@ -228,7 +228,7 @@ public class Equipement {
 				//J'envoie ma clé
 				eq.oos.writeObject(eq.maClePub());
 				eq.oos.reset();
-				
+
 				/*
 				//Je lis la reponse du client pour savoir la qte d'info a recevoir
 				PublicKey temp_pubkey=  (PublicKey) eq.ois.readObject(); //donc pas ca
@@ -242,9 +242,9 @@ public class Equipement {
 				else if (eq.DA.containsKey(temp_pubkey)) {
 					System.out.println("DA synchro starts");
 					eq.envoi_ListeCertif(eq.CA);
-					
+
 				}
-				*/
+				 */
 				String synchro_message=  (String) eq.ois.readObject();
 				System.out.println(synchro_message);
 
@@ -256,15 +256,15 @@ public class Equipement {
 				else if (synchro_message.equals("--DA_sync--")) {
 					//System.out.println("DA synchro starts");
 					eq.envoi_ListeCertif(eq.CA);
-					
+
 					ArrayList<Certificat> chaine = eq.recoit_CertifChain();
-					
+
 					//verifier la chaine
 					Boolean chaineok=false;
 					if (chaine.size()!=0) {
 						chaineok=true;
-						}
-					 System.out.println("Verification de la chaine : "+chaineok);
+					}
+					System.out.println("Verification de la chaine : "+chaineok);
 					//envoie le resultat de la verif de chaine au client
 					eq.oos.writeObject(chaineok);
 					eq.oos.reset();
@@ -273,7 +273,7 @@ public class Equipement {
 						eq.InitServerAuto();
 					}
 					//ajouter au DA
-					
+
 				}
 				else if(synchro_message.equals("--STOP_SYNC--")){
 					System.out.println("Composantes independantes");
@@ -292,7 +292,7 @@ public class Equipement {
 
 				break;
 
-			//Synchro client
+				//Synchro client
 			case "sc":
 				System.out.println("Port serveur ?");
 				portserv = Integer.parseInt(user_input.next());
@@ -319,8 +319,8 @@ public class Equipement {
 				/*//J'envoie la mienne
 				eq.oos.writeObject(eq.maClePub());
 				eq.oos.reset();*/
-				
-				
+
+
 
 				if (eq.CA.containsKey(temp_pubkeyc)) {
 					eq.oos.writeObject((String) "--CA_sync--");
@@ -337,7 +337,7 @@ public class Equipement {
 
 					ArrayList<Certificat> certif_chain = new ArrayList<Certificat>();
 					certif_chain = eq.DA.certifChain(CA_serv, eq.CA);
-					
+
 					eq.envoi_CertifChain(certif_chain);
 					//recoit le res de la verif de chaine
 					Boolean checkcertif=  (Boolean) eq.ois.readObject();
@@ -382,12 +382,46 @@ public class Equipement {
 			// Gestion des exceptions
 			System.out.println("oupsi, clé client et nom pas reçus");
 		}
+
+		//Envoi cle publique serveur et nom
+		try {
+			this.oos.writeObject(this.maCle.Publique());
+			this.oos.reset();
+			this.oos.writeObject(this.monNom);
+			this.oos.reset();
+		} catch (IOException e2) {
+			System.out.println("Je n'ai pas envoyé ma clé ou mon nom");
+			e2.printStackTrace();
+		}
+
+
 		//Demande utilisateur pour l'ajout du serveur
 		System.out.println("Ajouter le periphérique "+nomClient+"? (y/n)");
 		String repajout = user_input.next();
 
+		//envoi de la reponse de l'ajout
+		try {
+			this.oos.writeObject(repajout);
+			this.oos.reset();
+		} catch (IOException e1) {
+			System.out.println("Reponse non envoyée");
+			e1.printStackTrace();
+		}
+		//reception reponse du client pour l'ajout
+		String repclient=null;
+		try {
+			repclient=  (String) this.ois.readObject();
+		} catch (ClassNotFoundException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+
+
 		//Si on a récupéré le nom et l'utilisateur a accepté
-		if((clientPKey != null) && (repajout.equals("y"))){
+		if((clientPKey != null) && (repajout.equals("y"))&&(repclient.equals("y"))){
 			//Creation du certificat
 			try {
 				Certificat serv_user = new Certificat(this.monNom, nomClient, clientPKey, this.maCle.Privee(), 60);
@@ -396,11 +430,7 @@ public class Equipement {
 				this.oos.writeObject(serv_user);
 				this.oos.reset();
 
-				//Envoi cle publique serveur et nom
-				this.oos.writeObject(this.maCle.Publique());
-				this.oos.reset();
-				this.oos.writeObject(this.monNom);
-				this.oos.reset();
+
 
 				//Reception certificat client
 				Certificat certifClient = null;
@@ -459,6 +489,7 @@ public class Equipement {
 
 		}
 		else{
+			System.out.println("Refus de l'un des partis");
 			try {
 				this.oos.writeObject("NOPE");
 				this.oos.flush();
@@ -481,14 +512,7 @@ public class Equipement {
 			// Gestion des exceptions
 			System.out.println("oupsi, j'ai pas envoyé ma clé et mon nom");
 		}
-		// Reception du certif du serveur
-		Certificat certifServeur = null;
-		try {
-			certifServeur=  (Certificat) this.ois.readObject();
-		} catch (Exception e) {
-			// Gestion des exceptions
-			System.out.println("oupsi, j'ai pas le certif du serveur");
-		}
+
 
 		//Reception cle serveur et nom
 		PublicKey clepubserveur = null;
@@ -503,52 +527,87 @@ public class Equipement {
 		}
 
 
-		boolean okcertifserveur= certifServeur.verifCertif(clepubserveur);
-		if (okcertifserveur) {
-			//Demande utilisateur pour l'ajout du serveur
-			System.out.println("Ajouter le serveur "+nomserveur+"?(y/n)");
-			String repajout = user_input.next();
+		//Demande utilisateur pour l'ajout du serveur
+		System.out.println("Ajouter le serveur "+nomserveur+"?(y/n)");
+		String repajout = user_input.next();
 
-			//Si l'utilisateur accepte d'ajouter le periphérique on certifie le serveur
-			if (repajout.equals("y")) {
-				//Ajout de Serveur dans la CA du client
-				this.CA.put(clepubserveur, certifServeur);
+		//reception reponse du serveur pour l'ajout
+		String repserveur=null;
+		try {
+			repserveur=  (String) this.ois.readObject();
+		} catch (ClassNotFoundException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		//envoi de la reponse de l'ajout
+		try {
+			this.oos.writeObject(repajout);
+			this.oos.reset();
+		} catch (IOException e1) {
+			System.out.println("Reponse non envoyée");
+			e1.printStackTrace();
+		}
 
-				//Certification du serveur
-				Certificat certifserv = new Certificat(this.monNom, nomserveur, clepubserveur, this.maCle.Privee(), 60);
-
-				//Envoi certificat serveur
-				try{
-					this.oos.writeObject(certifserv);
-					this.oos.reset();
-				}catch(Exception e){
-					System.out.println("Return server certificate failed");
-				}
-
-				//Reception de DA
-				try{
-					int new_DA_size = (Integer) this.ois.readObject();
-					//System.out.println(new_DA_size);
-					PublicKey temp_pubkey;
-					Certificat temp_certif;
-					for (int i = 0; i<new_DA_size; i++)
-					{
-						temp_pubkey=  (PublicKey) this.ois.readObject();
-
-						temp_certif=  (Certificat) this.ois.readObject();
-						this.DA.put(temp_pubkey, temp_certif);
-					}
-					//this.DA.afficheDA();
-					//System.out.println(this.DA);
-				}catch(Exception e){
-					System.out.println("DA reception failed");
-				}
+		// Reception du certif du serveur
+		if (repajout.equals("y")&&repserveur.equals("y")) {
+			Certificat certifServeur = null;
+			try {
+				certifServeur=  (Certificat) this.ois.readObject();
+			} catch (Exception e) {
+				// Gestion des exceptions
+				System.out.println("oupsi, j'ai pas le certif du serveur");
 			}
-			else {System.out.println("Refus d'ajout du périphérique");}
+			boolean okcertifserveur= certifServeur.verifCertif(clepubserveur);
 
+			if (okcertifserveur) {
+
+				//Si l'utilisateur accepte d'ajouter le periphérique on certifie le serveur
+				if (repajout.equals("y")&&repserveur.equals("y")) {
+					//Ajout de Serveur dans la CA du client
+					this.CA.put(clepubserveur, certifServeur);
+
+					//Certification du serveur
+					Certificat certifserv = new Certificat(this.monNom, nomserveur, clepubserveur, this.maCle.Privee(), 60);
+
+					//Envoi certificat serveur
+					try{
+						this.oos.writeObject(certifserv);
+						this.oos.reset();
+					}catch(Exception e){
+						System.out.println("Return server certificate failed");
+					}
+
+					//Reception de DA
+					try{
+						int new_DA_size = (Integer) this.ois.readObject();
+						//System.out.println(new_DA_size);
+						PublicKey temp_pubkey;
+						Certificat temp_certif;
+						for (int i = 0; i<new_DA_size; i++)
+						{
+							temp_pubkey=  (PublicKey) this.ois.readObject();
+
+							temp_certif=  (Certificat) this.ois.readObject();
+							this.DA.put(temp_pubkey, temp_certif);
+						}
+						//this.DA.afficheDA();
+						//System.out.println(this.DA);
+					}catch(Exception e){
+						System.out.println("DA reception failed");
+					}
+				}
+				else {System.out.println("Refus d'ajout du périphérique");}
+
+			}
+			else {
+				System.out.println("Certificat serveur invalide");
+			}
 		}
 		else {
-			System.out.println("Certificat serveur invalide");
+			System.out.println("Opération refusée par l'un des partis");
 		}
 	}
 
@@ -574,21 +633,6 @@ public class Equipement {
 	}
 
 
-	public void majDA(Equipement C, Equipement B) {
-		//On met a jour DA[A] apres l'insertion de C alors qu'on connait directement B
-		Certificat dansa1 = null;
-		Certificat dansa2 = null;
-		Certificat dansb1 = null;
-		Certificat dansb2 = null;
-		dansa1 = this.DA.get(C.maClePub());
-		dansa2 = this.CA.get(C.maClePub());
-		dansb1 = B.DA.get(C.maClePub());
-		dansb2 = B.CA.get(C.maClePub());
-		if ((dansa1==null)&&(dansa2==null)&&((dansb1!=null)||(dansb2!=null))) {
-			this.DA.put(C.maClePub(),C.monCertif());
-			System.out.println("Equipement ajouté dans DA de "+this.monNom);
-		}
-	}
 	public void envoiliste() {
 		try {
 			Integer new_DA_size = (Integer) this.CA.size() + this.DA.size();
@@ -787,7 +831,7 @@ public class Equipement {
 			// Gestion des exceptions
 			System.out.println("oupsi, clé client et nom pas reçus");
 		}
-		
+
 
 		//Si on a récupéré le nom 
 		if((clientPKey != null)){
@@ -907,7 +951,7 @@ public class Equipement {
 
 		boolean okcertifserveur= certifServeur.verifCertif(clepubserveur);
 		if (okcertifserveur) {
-			
+
 
 			//Si l'utilisateur accepte d'ajouter le periphérique on certifie le serveur
 			if (true) {
