@@ -224,27 +224,12 @@ public class Equipement {
 
 					System.out.println("Streams failed");
 				}
-				//System.out.println("Clé publique envoyee? ");
+				
 				//J'envoie ma clé
 				eq.oos.writeObject(eq.maClePub());
 				eq.oos.reset();
 
-				/*
-				//Je lis la reponse du client pour savoir la qte d'info a recevoir
-				PublicKey temp_pubkey=  (PublicKey) eq.ois.readObject(); //donc pas ca
-
-				//et les conditions ici aussi sont foireuses
-				if (eq.CA.containsKey(temp_pubkey)) {
-					eq.recoitliste();
-					eq.envoiliste();
-					System.out.println("CA synchro");
-				}
-				else if (eq.DA.containsKey(temp_pubkey)) {
-					System.out.println("DA synchro starts");
-					eq.envoi_ListeCertif(eq.CA);
-
-				}
-				 */
+				
 				String synchro_message=  (String) eq.ois.readObject();
 				System.out.println(synchro_message);
 
